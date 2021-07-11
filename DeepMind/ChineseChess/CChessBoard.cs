@@ -42,14 +42,18 @@ namespace DeepMind.ChineseChess
 
     //主要為A B
 
+    //BoardString 從上往下讀取
+    //_Data 從下往上存
+    //Indexer X Y易位
     public class CChessBoard
     {
         private const string ExceptionString = "\"{0}\" is not a valid Chinese Chess board data string.";
         public const string ChessLetters = "KSXGMBPksxgmbp ";
-        public const string StartingBoardString = "GMXSKSXMG/9/1B5B1/P1P1P1P1P/9/9/p1p1p1p1p/1b5b1/9/gmxsksxmg r";
+        //public const string StartingBoardString = "GMXSKSXMG/9/1B5B1/P1P1P1P1P/9/9/p1p1p1p1p/1b5b1/9/gmxsksxmg r";
+        public const string StartingBoardString = "gmxsksxmg/9/1b5b1/p1p1p1p1p/9/9/P1P1P1P1P/1B5B1/9/GMXSKSXMG r";
         public static Dictionary<char, char> LetterToChineseWord => new Dictionary<char, char>()
-        { { 'K', '將' }, { 'S', '士' }, { 'X', '象' }, { 'M', '馬' }, { 'G', '車' }, { 'B', '包' }, { 'P', '卒' },
-          { 'k', '帥' }, { 's', '仕' }, { 'x', '相' }, { 'm', '傌' }, { 'g', '俥' }, { 'b', '炮' }, { 'p', '兵' },
+        { { 'k', '將' }, { 's', '士' }, { 'x', '象' }, { 'm', '馬' }, { 'g', '車' }, { 'b', '包' }, { 'p', '卒' },
+          { 'K', '帥' }, { 'S', '仕' }, { 'X', '相' }, { 'M', '傌' }, { 'G', '俥' }, { 'B', '炮' }, { 'P', '兵' },
           { ' ', '　'} };
 
         protected char[][] _Data;
@@ -121,11 +125,11 @@ namespace DeepMind.ChineseChess
             {
                 data[i] = new char[9];
                 int p = 0;
-                for (int j = 0; j < buffer2[i].Length; j++)
+                for (int j = 0; j < buffer2[9 - i].Length; j++)
                 {
-                    if (Char.IsDigit(buffer2[i], j))
+                    if (Char.IsDigit(buffer2[9 - i], j))
                     {
-                        int m = Convert.ToInt32(buffer2[i][j].ToString());
+                        int m = Convert.ToInt32(buffer2[9 - i][j].ToString());
                         if (m == 0)
                             throw new ArgumentException(string.Format(ExceptionString, value));
                         for (int k = 0; k < m; k++)
@@ -133,9 +137,9 @@ namespace DeepMind.ChineseChess
                     }
                     else
                     {
-                        if (!ChessLetters.Contains(buffer2[i][j]))
+                        if (!ChessLetters.Contains(buffer2[9 - i][j]))
                             throw new ArgumentException(string.Format(ExceptionString, value));
-                        data[i][p++] = buffer2[i][j];
+                        data[i][p++] = buffer2[9 - i][j];
                     }
                 }
             }
@@ -163,7 +167,7 @@ namespace DeepMind.ChineseChess
         public string PrintBoardString()
         {
             StringBuilder result = new StringBuilder();
-            for (int i = 0; i < 10; i++)
+            for (int i = 9; i >= 0; i--)
             {
                 int emptyCount = 0;
                 for (int j = 0; j < 9; j++)
@@ -199,7 +203,7 @@ namespace DeepMind.ChineseChess
         public string PrintBoard(bool displayPlayerTurn = true)
         {
             StringBuilder result = new StringBuilder();
-            for(int i = 0; i < 10; i++)
+            for(int i = 9; i >= 0; i--)
             {            
                 for(int j = 0; j < 9; j++)
                     result.Append(LetterToChineseWord[_Data[i][j]]);
