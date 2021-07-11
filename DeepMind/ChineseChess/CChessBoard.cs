@@ -30,75 +30,132 @@ namespace DeepMind.ChineseChess
     //10
     //  a b c d e f g h i
 
+    //BoardString
+    //A. 盤面
+    //B. 輪誰
+    //C. 紅方捉數
+    //D. 紅方將數
+    //E. 黑方捉數
+    //F. 黑方將數
+    //G. 閒步數
+    //H. 總步數
+
+    //主要為A B
+
     public class CChessBoard
     {
         private const string ExceptionString = "\"{0}\" is not a valid Chinese Chess board data string.";
         private const string ChessLetters = "KSXGMBPksxgmbp ";
+        public const string StartingBoardString = "GMXSKSXMG/9/1B5B1/P1P1P1P1P/9/9/p1p1p1p1p/1b5b1/9/gmxsksxmg r";
 
         protected char[][] _Data;
+        public bool IsBlackTurn { get; set; }
+        public int[] CatchCount { get; set; } = new int[1];
+        public int[] CheckmateCount { get; set; } = new int[1];
+        public int HalfMoveCount { get; set; }
+        public int TotalMoveCount { get; set; }
+        public CChessBoard(string boardString = StartingBoardString)
+            => LoadBoardString(boardString);
 
         public char[][] Data
         {
             get => _Data;
             set
-            {   
-                if(value.Length != 10)
+            {
+                if (value.Length != 10)
                     throw new ArgumentException(string.Format(ExceptionString, "This"));
-                for(int i = 0; i < 10; i++)
+                for (int i = 0; i < 10; i++)
                 {
                     if (value[i].Length != 9)
                         throw new ArgumentException(string.Format(ExceptionString, "This"));
-                    for(int j = 0; j < 9; j++)
-                        if(!ChessLetters.Contains(value[i][j]))
+                    for (int j = 0; j < 9; j++)
+                        if (!ChessLetters.Contains(value[i][j]))
                             throw new ArgumentException(string.Format(ExceptionString, "This"));
                 }
                 _Data = value;
             }
         }
-
-        public void SetBoardWithoutCheck(char[][] value)
+        
+        private void Clear()
         {
+            _Data = null;
+            IsBlackTurn = false;
+            CatchCount[0] = CatchCount[1] =
+            CheckmateCount[0] = CheckmateCount[1] =
+            HalfMoveCount = TotalMoveCount = 0;
+        }
+
+        public void SetBoardWithoutCheck(char[][] value, bool isBlackTurn = false)
+        {
+            Clear();
             _Data = value;
+            IsBlackTurn = isBlackTurn;
         }
 
         public void LoadBoardString(string value)
-        {   
-            if (!value.Contains('/'))
+        {
+            Clear();
+            string[] buffer, buffer2;
+            if (!value.Contains(' '))
                 throw new ArgumentException(string.Format(ExceptionString, value));
-            string[] buffer = value.Split('/');
-            if (buffer.Length != 10)
+            buffer = value.Split(' ');
+
+            if(buffer.Length != 2 && buffer.Length != 8)
+                throw new ArgumentException(string.Format(ExceptionString, value));
+            if (!buffer[0].Contains('/'))
+                throw new ArgumentException(string.Format(ExceptionString, value));
+            buffer2 = buffer[0].Split('/');
+            if (buffer2.Length != 10)
                 throw new ArgumentException(string.Format(ExceptionString, value));
 
-            char[][] result = new char[10][];
-            for(int i = 0; i < 10; i++)
+            char[][] data = new char[10][];
+            for (int i = 0; i < 10; i++)
             {
-                result[i] = new char[9];
+                data[i] = new char[9];
                 int p = 0;
-                for (int j = 0; j < buffer[i].Length; j++)
-                {   
-                    if (Char.IsDigit(buffer[i], j))
+                for (int j = 0; j < buffer2[i].Length; j++)
+                {
+                    if (Char.IsDigit(buffer2[i], j))
                     {
-                        int m = Convert.ToInt32(buffer[i][j]);
+                        int m = Convert.ToInt32(buffer2[i][j]);
                         if (m == 0)
                             throw new ArgumentException(string.Format(ExceptionString, value));
                         for (int k = 0; k < m; k++)
-                            result[i][p++] = ' ';
+                            data[i][p++] = ' ';
                     }
                     else
                     {
-                        if(!ChessLetters.Contains(buffer[i][j]))
+                        if (!ChessLetters.Contains(buffer2[i][j]))
                             throw new ArgumentException(string.Format(ExceptionString, value));
-                        result[i][p++] = buffer[i][j];
-                    }   
+                        data[i][p++] = buffer2[i][j];
+                    }
                 }
-            }            
-            _Data = result;
+            }
+            _Data = data;
+
+            if (buffer[1] == "r")
+                IsBlackTurn = false;
+            else if (buffer[1] == "b")
+                IsBlackTurn = true;
+            else
+                throw new ArgumentException(string.Format(ExceptionString, value));
+
+            if (buffer.Length == 8)
+            {
+                //Full Detail Mode
+                CatchCount[0] = Convert.ToInt32(buffer[2]);
+                CheckmateCount[0] = Convert.ToInt32(buffer[3]);
+                CatchCount[1] = Convert.ToInt32(buffer[4]);
+                CheckmateCount[1] = Convert.ToInt32(buffer[5]);
+                HalfMoveCount = Convert.ToInt32(buffer[6]);
+                TotalMoveCount = Convert.ToInt32(buffer[7]);
+            }
         }
 
         public string PrintBoardString()
         {
             StringBuilder result = new StringBuilder();
-            for(int i = 0; i < 10; i++)
+            for (int i = 0; i < 10; i++)
             {
                 int emptyCount = 0;
                 for (int j = 0; j < 9; j++)
@@ -108,7 +165,7 @@ namespace DeepMind.ChineseChess
                     else
                     {
                         if (emptyCount != 0)
-                        { 
+                        {
                             result.Append(emptyCount);
                             emptyCount = 0;
                         }
@@ -118,7 +175,16 @@ namespace DeepMind.ChineseChess
                 result.Append('/');
             }
             result.Remove(result.Length - 1, 1);
+            result.Append(' ');
+            result.Append(IsBlackTurn ? 'b' : 'r');
+            if(CatchCount[0] == 0 && CatchCount[1] == 0 &&
+               CheckmateCount[0] == 0 && CheckmateCount[1] == 0 &&
+               HalfMoveCount == 0 && TotalMoveCount == 0)
+                return result.ToString();
+            result.AppendFormat(" {0} {1} {2} {3} {4} {5}", CatchCount[0], CheckmateCount[0],
+                CatchCount[1], CheckmateCount[1], HalfMoveCount, TotalMoveCount);            
             return result.ToString();
+
         }
 
     }

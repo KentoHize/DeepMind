@@ -6,8 +6,9 @@ namespace DeepMindTest
     public class MainTest
     {
         [TestMethod]
-        public void TestMethod1()
+        public void LoadBoardTest()
         {
+
         }
     }
 }
