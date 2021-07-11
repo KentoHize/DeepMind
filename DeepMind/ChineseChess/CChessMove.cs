@@ -34,12 +34,11 @@ namespace DeepMind.ChineseChess
         public string ToChineseString()
         {
             return "";
+            //To Do
         }
 
         public string ToTestString()
-        {
-            return $"{CChessBoard.LetterToChineseWord[Piece]} {X1},{Y1} => {X2},{Y2}";
-        }
+            => $"{CChessBoard.LetterToChineseWord[Piece]} {X1},{Y1} => {X2},{Y2}";
 
         public override bool Equals(object obj)
         {

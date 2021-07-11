@@ -4,20 +4,6 @@ using System.Text;
 
 namespace DeepMind.ChineseChess
 {
-    public enum CChessStatus
-    {
-        None = 0,
-        AtStart = 1, //開局
-        Proceeding, //平穩進行 
-        RedCatch, //紅方捉子
-        BlackCatch, //黑方捉子
-        RedCheckmate, //紅方將軍
-        BlackCheckmate, //黑方將軍
-        RedWin, //紅方獲勝
-        BlackWin, //黑方獲勝
-        Draw //平手
-    }
-
     public class CChessSystem
     {
         protected static string[] PieceLetters => new string[] { "KABRNCP", "kabrncp" };
@@ -214,13 +200,13 @@ namespace DeepMind.ChineseChess
                                 }
 
                                 if (player == 0)
-                                { 
+                                {
                                     for (int k = j + 1; k < 10; k++)
                                         if (!CheckStraightKing(i, k))
                                             break;
                                 }
                                 else
-                                { 
+                                {
                                     for (int k = j - 1; k >= 0; k--)
                                         if (!CheckStraightKing(i, k))
                                             break;
@@ -242,18 +228,22 @@ namespace DeepMind.ChineseChess
             if (CurrentLegalMove.IndexOf(move) == -1)
                 throw new ArgumentOutOfRangeException(nameof(move));
 
+            char piece = CurrentBoard[move.X1, move.Y1];
+            CurrentBoard[move.X2, move.Y2] = piece;
+            CurrentBoard[move.X1, move.Y1] = ' ';
+            CurrentBoard.IsBlackTurn = !CurrentBoard.IsBlackTurn;
+            CheckResult();
         }
 
         public void Initialize()
         {
             CurrentBoard = new CChessBoard();
+            Status = CChessStatus.None;
         }
 
         public void Start()
         {
-            if (Status == CChessStatus.None)
-                Status = CChessStatus.AtStart;
-            CurrentLegalMove = GetLegalMoves();
+            CheckResult();
         }
 
         public void Restart(CChessBoard board = null)
@@ -264,16 +254,43 @@ namespace DeepMind.ChineseChess
             Start();
         }
 
-        public static CChessStatus CheckResult(CChessBoard ccb)
+        public void CheckResult()
+        {
+            CurrentLegalMove = GetLegalMoves();
+            Status = CheckResult(CurrentBoard, CurrentLegalMove);
+        }            
+
+        public static CChessStatus CheckResult(CChessBoard ccb, List<CChessMove> legalMoves = null)
         {
             if (ccb == CChessBoard.StartingBoard)
                 return CChessStatus.AtStart;
 
-            GetLegalMoves(ccb);
+            if(legalMoves == null)
+                legalMoves = GetLegalMoves(ccb);
+            for (int i = 0; i < legalMoves.Count; i++)
+            {
+                if (ccb.IsBlackTurn)
+                {
+                    if (ccb[legalMoves[i].X2, legalMoves[i].Y2] == 'K')
+                        return CChessStatus.BlackWin;
+                }
+                else
+                {
+                    return CChessStatus.BlackCheck;
+                }
 
-            return CChessStatus.Proceeding;
-        }
-
+                if (!ccb.IsBlackTurn)
+                {
+                    if (ccb[legalMoves[i].X2, legalMoves[i].Y2] == 'k')
+                        return CChessStatus.RedWin;
+                }
+                else
+                {
+                    return CChessStatus.RedCheck;
+                }   
+            }
+            return CChessStatus.Smooth;
+        }     
 
     }
 }

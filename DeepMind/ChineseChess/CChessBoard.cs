@@ -33,12 +33,14 @@ namespace DeepMind.ChineseChess
     //BoardString
     //A. 盤面
     //B. 輪誰
-    //C. 紅方捉數
-    //D. 紅方將數
-    //E. 黑方捉數
-    //F. 黑方將數
-    //G. 閒步數
-    //H. 總步數
+    //C. -
+    //D. -
+    //E. 閒步數
+    //F. 總步數
+    //G. 紅方捉數
+    //H. 紅方將數
+    //I. 黑方捉數
+    //J. 黑方將數
 
     //主要為A B
 
@@ -59,7 +61,7 @@ namespace DeepMind.ChineseChess
         protected char[][] _Data;
         public bool IsBlackTurn { get; set; }
         public int[] CatchCount { get; protected set; } = new int[2];
-        public int[] CheckmateCount { get; protected set; } = new int[2];
+        public int[] CheckCount { get; protected set; } = new int[2];
         public int HalfMoveCount { get; set; }
         public int TotalMoveCount { get; set; }
         public CChessBoard(string boardString = StartingBoardString)
@@ -67,7 +69,10 @@ namespace DeepMind.ChineseChess
 
         //取出相反
         public char this[int x, int y]
-            => _Data[y][x];
+        {
+            get => _Data[y][x];
+            set => _Data[y][x] = value;
+        }   
 
         public char[][] Data
         {
@@ -93,7 +98,7 @@ namespace DeepMind.ChineseChess
             _Data = null;
             IsBlackTurn = false;
             CatchCount[0] = CatchCount[1] =
-            CheckmateCount[0] = CheckmateCount[1] =
+            CheckCount[0] = CheckCount[1] =
             HalfMoveCount = TotalMoveCount = 0;
         }
 
@@ -112,7 +117,7 @@ namespace DeepMind.ChineseChess
                 throw new ArgumentException(string.Format(ExceptionString, value));
             buffer = value.Split(' ');
 
-            if(buffer.Length != 2 && buffer.Length != 8)
+            if(buffer.Length != 2 && buffer.Length != 10)
                 throw new ArgumentException(string.Format(ExceptionString, value));
             if (!buffer[0].Contains('/'))
                 throw new ArgumentException(string.Format(ExceptionString, value));
@@ -152,15 +157,15 @@ namespace DeepMind.ChineseChess
             else
                 throw new ArgumentException(string.Format(ExceptionString, value));
 
-            if (buffer.Length == 8)
+            if (buffer.Length == 10)
             {
-                //Full Detail Mode
-                CatchCount[0] = Convert.ToInt32(buffer[2]);
-                CheckmateCount[0] = Convert.ToInt32(buffer[3]);
-                CatchCount[1] = Convert.ToInt32(buffer[4]);
-                CheckmateCount[1] = Convert.ToInt32(buffer[5]);
-                HalfMoveCount = Convert.ToInt32(buffer[6]);
-                TotalMoveCount = Convert.ToInt32(buffer[7]);
+                //Full Detail Mode                
+                HalfMoveCount = Convert.ToInt32(buffer[4]);
+                TotalMoveCount = Convert.ToInt32(buffer[5]);
+                CatchCount[0] = Convert.ToInt32(buffer[6]);
+                CheckCount[0] = Convert.ToInt32(buffer[7]);
+                CatchCount[1] = Convert.ToInt32(buffer[8]);
+                CheckCount[1] = Convert.ToInt32(buffer[9]);                
             }
         }
 
@@ -192,11 +197,11 @@ namespace DeepMind.ChineseChess
             result.Append(' ');
             result.Append(IsBlackTurn ? 'b' : 'w');
             if(CatchCount[0] == 0 && CatchCount[1] == 0 &&
-               CheckmateCount[0] == 0 && CheckmateCount[1] == 0 &&
+               CheckCount[0] == 0 && CheckCount[1] == 0 &&
                HalfMoveCount == 0 && TotalMoveCount == 0)
                 return result.ToString();
-            result.AppendFormat(" {0} {1} {2} {3} {4} {5}", CatchCount[0], CheckmateCount[0],
-                CatchCount[1], CheckmateCount[1], HalfMoveCount, TotalMoveCount);            
+            result.AppendFormat("- - {0} {1} {2} {3} {4} {5}", HalfMoveCount, TotalMoveCount, CatchCount[0], CheckCount[0],
+                CatchCount[1], CheckCount[1]);
             return result.ToString();
         }
 
