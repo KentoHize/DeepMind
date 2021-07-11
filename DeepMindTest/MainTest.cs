@@ -52,9 +52,7 @@ namespace DeepMindTest
 
             CChessMove R9h8 = new CChessMove('R', 8, 0, 7, 0);
             ccs.Move(R9h8);
-
-
-            TestContext.WriteLine(ccs.CurrentBoard.PrintBoard());
+            TestContext.WriteLine(ccs.ToTestString());
         }
     }
 }

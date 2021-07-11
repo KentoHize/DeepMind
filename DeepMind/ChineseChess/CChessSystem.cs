@@ -232,12 +232,15 @@ namespace DeepMind.ChineseChess
             CurrentBoard[move.X2, move.Y2] = piece;
             CurrentBoard[move.X1, move.Y1] = ' ';
             CurrentBoard.IsBlackTurn = !CurrentBoard.IsBlackTurn;
+            MoveRecord.Add(move);
             CheckResult();
+            
         }
 
         public void Initialize()
         {
             CurrentBoard = new CChessBoard();
+            MoveRecord = new List<CChessMove>();
             Status = CChessStatus.None;
         }
 
@@ -258,39 +261,47 @@ namespace DeepMind.ChineseChess
         {
             CurrentLegalMove = GetLegalMoves();
             Status = CheckResult(CurrentBoard, CurrentLegalMove);
-        }            
+        }
 
         public static CChessStatus CheckResult(CChessBoard ccb, List<CChessMove> legalMoves = null)
         {
             if (ccb == CChessBoard.StartingBoard)
                 return CChessStatus.AtStart;
 
-            if(legalMoves == null)
+            if (legalMoves == null)
                 legalMoves = GetLegalMoves(ccb);
             for (int i = 0; i < legalMoves.Count; i++)
             {
-                if (ccb.IsBlackTurn)
-                {
-                    if (ccb[legalMoves[i].X2, legalMoves[i].Y2] == 'K')
+                if (ccb[legalMoves[i].X2, legalMoves[i].Y2] == 'K')
+                    if (ccb.IsBlackTurn)
                         return CChessStatus.BlackWin;
-                }
-                else
-                {
-                    return CChessStatus.BlackCheck;
-                }
+                    else
+                        return CChessStatus.BlackCheck;
 
-                if (!ccb.IsBlackTurn)
-                {
-                    if (ccb[legalMoves[i].X2, legalMoves[i].Y2] == 'k')
-                        return CChessStatus.RedWin;
-                }
-                else
-                {
-                    return CChessStatus.RedCheck;
-                }   
+                if (ccb[legalMoves[i].X2, legalMoves[i].Y2] == 'k')
+                    if (ccb.IsBlackTurn)
+                        return CChessStatus.RedCheck;
+                    else
+                        return CChessStatus.RedWin;                
             }
             return CChessStatus.Smooth;
-        }     
+        }
+
+        public string ToTestString()
+        {
+            StringBuilder result = new StringBuilder();
+            result.Append(CurrentBoard.PrintBoard());
+            result.Append("狀態：");
+            result.AppendLine(Status.ToCString());
+            result.Append("棋譜：");
+            for (int i = 0; i < MoveRecord.Count; i++)
+            {
+                if (i % 2 == 0)
+                    result.AppendLine();
+                result.AppendFormat("{0} ", MoveRecord[i].ToTestString());
+            }
+            return result.ToString();
+        }
 
     }
 }
