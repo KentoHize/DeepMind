@@ -27,7 +27,7 @@ namespace DeepMind.ChineseChess
         public CChessStatus Status { get; set; }
         public CChessSystem()
         {
-            Initialize();               
+            Initialize();
         }
 
         public static List<CChessMove> GetLegalMoves(CChessBoard ccb)
@@ -66,8 +66,8 @@ namespace DeepMind.ChineseChess
                                         result.Add(new CChessMove(ccb[i, j], i, j, i + 1, j));
                                 }
                                 break;
-                            case 'B':
-                            case 'b':
+                            case 'C':
+                            case 'c':
                                 bool isRun = true;
                                 bool CheckStraightBao(int x, int y)
                                 {
@@ -100,8 +100,8 @@ namespace DeepMind.ChineseChess
                                     if (!CheckStraightBao(i, k))
                                         break;
                                 break;
-                            case 'G':
-                            case 'g':
+                            case 'R':
+                            case 'r':
                                 bool CheckStraightChe(int x, int y)
                                 {
                                     if (ccb[x, y] == ' ')
@@ -128,8 +128,8 @@ namespace DeepMind.ChineseChess
                                     if (!CheckStraightChe(i, k))
                                         break;
                                 break;
-                            case 'M':
-                            case 'm':
+                            case 'N':
+                            case 'n':
                                 if (i > 0 && j > 1 && ccb[i, j - 1] == ' ' &&
                                     !PieceLetters[player].Contains(ccb[i - 1, j - 2]))
                                     result.Add(new CChessMove(ccb[i, j], i, j, i - 1, j - 2));
@@ -155,8 +155,8 @@ namespace DeepMind.ChineseChess
                                     !PieceLetters[player].Contains(ccb[i + 1, j - 2]))
                                     result.Add(new CChessMove(ccb[i, j], i, j, i + 1, j - 2));
                                 break;
-                            case 'X':
-                            case 'x':
+                            case 'B':
+                            case 'b':
                                 if ((player == 0 || j >= 7)
                                     && i > 1 && j > 1 && ccb[i - 1, j - 1] == ' ' &&
                                     !PieceLetters[player].Contains(ccb[i - 2, j - 2]))
@@ -174,8 +174,8 @@ namespace DeepMind.ChineseChess
                                     !PieceLetters[player].Contains(ccb[i - 2, j + 2]))
                                     result.Add(new CChessMove(ccb[i, j], i, j, i - 2, j + 2));
                                 break;
-                            case 'S':
-                            case 's':
+                            case 'A':
+                            case 'a':
                                 if (((player == 0 && i >= 4 && j > 0) || (player == 1 && i >= 4 && j > 7)) &&
                                     !PieceLetters[player].Contains(ccb[i - 1, j - 1]))
                                     result.Add(new CChessMove(ccb[i, j], i, j, i - 1, j - 1));
@@ -201,6 +201,30 @@ namespace DeepMind.ChineseChess
                                 if (((player == 0 && j < 2) || (player == 1 && j < 9)) &&
                                     !PieceLetters[player].Contains(ccb[i, j + 1]))
                                     result.Add(new CChessMove(ccb[i, j], i, j, i, j + 1));
+
+                                bool CheckStraightKing(int x, int y)
+                                {
+                                    if (ccb[x, y] != ' ')
+                                    {
+                                        if (ccb[x, y] == 'k' || ccb[x, y] == 'K')
+                                            result.Add(new CChessMove(ccb[i, j], i, j, x, y));
+                                        return false;
+                                    }
+                                    return true;
+                                }
+
+                                if (player == 0)
+                                { 
+                                    for (int k = j + 1; k < 10; k++)
+                                        if (!CheckStraightKing(i, k))
+                                            break;
+                                }
+                                else
+                                { 
+                                    for (int k = j - 1; k >= 0; k--)
+                                        if (!CheckStraightKing(i, k))
+                                            break;
+                                }
                                 break;
                         }
                     }
@@ -227,7 +251,7 @@ namespace DeepMind.ChineseChess
 
         public void Start()
         {
-            if(Status == CChessStatus.None)
+            if (Status == CChessStatus.None)
                 Status = CChessStatus.AtStart;
             CurrentLegalMove = GetLegalMoves();
         }
@@ -235,8 +259,8 @@ namespace DeepMind.ChineseChess
         public void Restart(CChessBoard board = null)
         {
             Initialize();
-            if (board != null)                
-                CurrentBoard  = board;            
+            if (board != null)
+                CurrentBoard = board;
             Start();
         }
 
