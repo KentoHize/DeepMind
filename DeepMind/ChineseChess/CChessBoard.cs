@@ -47,11 +47,15 @@ namespace DeepMind.ChineseChess
         private const string ExceptionString = "\"{0}\" is not a valid Chinese Chess board data string.";
         private const string ChessLetters = "KSXGMBPksxgmbp ";
         public const string StartingBoardString = "GMXSKSXMG/9/1B5B1/P1P1P1P1P/9/9/p1p1p1p1p/1b5b1/9/gmxsksxmg r";
+        public static Dictionary<char, char> LetterToChineseWord => new Dictionary<char, char>()
+        { { 'K', '將' }, { 'S', '士' }, { 'X', '象' }, { 'M', '馬' }, { 'G', '車' }, { 'B', '包' }, { 'P', '卒' },
+          { 'k', '帥' }, { 's', '仕' }, { 'x', '相' }, { 'm', '傌' }, { 'g', '俥' }, { 'b', '炮' }, { 'p', '兵' },
+          { ' ', '　'} };
 
         protected char[][] _Data;
         public bool IsBlackTurn { get; set; }
-        public int[] CatchCount { get; set; } = new int[1];
-        public int[] CheckmateCount { get; set; } = new int[1];
+        public int[] CatchCount { get; protected set; } = new int[2];
+        public int[] CheckmateCount { get; protected set; } = new int[2];
         public int HalfMoveCount { get; set; }
         public int TotalMoveCount { get; set; }
         public CChessBoard(string boardString = StartingBoardString)
@@ -117,11 +121,11 @@ namespace DeepMind.ChineseChess
                 {
                     if (Char.IsDigit(buffer2[i], j))
                     {
-                        int m = Convert.ToInt32(buffer2[i][j]);
+                        int m = Convert.ToInt32(buffer2[i][j].ToString());
                         if (m == 0)
                             throw new ArgumentException(string.Format(ExceptionString, value));
                         for (int k = 0; k < m; k++)
-                            data[i][p++] = ' ';
+                            data[i][p++] = ' ';                            
                     }
                     else
                     {
@@ -172,6 +176,8 @@ namespace DeepMind.ChineseChess
                         result.Append(_Data[i][j]);
                     }
                 }
+                if (emptyCount != 0)
+                    result.Append(emptyCount);
                 result.Append('/');
             }
             result.Remove(result.Length - 1, 1);
@@ -184,7 +190,22 @@ namespace DeepMind.ChineseChess
             result.AppendFormat(" {0} {1} {2} {3} {4} {5}", CatchCount[0], CheckmateCount[0],
                 CatchCount[1], CheckmateCount[1], HalfMoveCount, TotalMoveCount);            
             return result.ToString();
+        }
 
+        public string PrintBoard(bool displayPlayerTurn = true)
+        {
+            StringBuilder result = new StringBuilder();
+            for(int i = 0; i < 10; i++)
+            {            
+                for(int j = 0; j < 9; j++)
+                {
+                    result.Append(LetterToChineseWord[_Data[i][j]]);
+                }
+                result.Append('\n');
+            }
+            if (displayPlayerTurn)
+                result.AppendFormat("下一步：{0}方\n", IsBlackTurn ? "黑" : "紅");            
+            return result.ToString();
         }
 
     }
