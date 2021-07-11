@@ -40,5 +40,17 @@ namespace DeepMind.ChineseChess
         {
             return $"{CChessBoard.LetterToChineseWord[Piece]} {X1},{Y1} => {X2},{Y2}";
         }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is CChessMove ccm))
+                return false;
+            if (Piece == ccm.Piece && X1 == ccm.X1 && X2 == ccm.X2 && Y1 == ccm.Y1 && Y2 == ccm.Y2)
+                return true;
+            return false;
+        }   
+
+        public override int GetHashCode()
+            => Piece.GetHashCode() ^ X1.GetHashCode() ^ X2.GetHashCode() ^ Y1.GetHashCode() ^ Y2.GetHashCode();
     }
 }

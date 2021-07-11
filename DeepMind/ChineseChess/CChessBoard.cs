@@ -48,9 +48,9 @@ namespace DeepMind.ChineseChess
     public class CChessBoard
     {
         private const string ExceptionString = "\"{0}\" is not a valid Chinese Chess board data string.";
-        public const string ChessLetters = "KSXGMBPksxgmbp ";
-        //public const string StartingBoardString = "GMXSKSXMG/9/1B5B1/P1P1P1P1P/9/9/p1p1p1p1p/1b5b1/9/gmxsksxmg r";
+        public const string ChessLetters = "KSXGMBPksxgmbp ";        
         public const string StartingBoardString = "gmxsksxmg/9/1b5b1/p1p1p1p1p/9/9/P1P1P1P1P/1B5B1/9/GMXSKSXMG r";
+        public static CChessBoard StartingBoard => new CChessBoard();
         public static Dictionary<char, char> LetterToChineseWord => new Dictionary<char, char>()
         { { 'k', '將' }, { 's', '士' }, { 'x', '象' }, { 'm', '馬' }, { 'g', '車' }, { 'b', '包' }, { 'p', '卒' },
           { 'K', '帥' }, { 'S', '仕' }, { 'X', '相' }, { 'M', '傌' }, { 'G', '俥' }, { 'B', '炮' }, { 'P', '兵' },

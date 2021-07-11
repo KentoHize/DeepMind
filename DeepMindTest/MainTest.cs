@@ -23,7 +23,7 @@ namespace DeepMindTest
         public void GetLegalMoveTest()
         {
             CChessSystem ccs = new CChessSystem();
-            var a = ccs.LegalMoveList();
+            var a = ccs.GetLegalMoves();
             for (int i = 0; i < a.Count; i++)
                 TestContext.WriteLine(a[i].ToTestString());
         }
