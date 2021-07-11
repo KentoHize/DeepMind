@@ -42,13 +42,13 @@ namespace DeepMind.ChineseChess
             get => _Data;
             set
             {   
-                if(value.Length != 9)
+                if(value.Length != 10)
                     throw new ArgumentException(string.Format(ExceptionString, "This"));
-                for(int i = 0; i < 9; i++)
+                for(int i = 0; i < 10; i++)
                 {
-                    if (value[i].Length != 10)
+                    if (value[i].Length != 9)
                         throw new ArgumentException(string.Format(ExceptionString, "This"));
-                    for(int j = 0; j < 10; j++)
+                    for(int j = 0; j < 9; j++)
                         if(!ChessLetters.Contains(value[i][j]))
                             throw new ArgumentException(string.Format(ExceptionString, "This"));
                 }
@@ -97,7 +97,28 @@ namespace DeepMind.ChineseChess
 
         public string PrintBoardString()
         {
-            
+            StringBuilder result = new StringBuilder();
+            for(int i = 0; i < 10; i++)
+            {
+                int emptyCount = 0;
+                for (int j = 0; j < 9; j++)
+                {
+                    if (_Data[i][j] == ' ')
+                        emptyCount++;
+                    else
+                    {
+                        if (emptyCount != 0)
+                        { 
+                            result.Append(emptyCount);
+                            emptyCount = 0;
+                        }
+                        result.Append(_Data[i][j]);
+                    }
+                }
+                result.Append('/');
+            }
+            result.Remove(result.Length - 1, 1);
+            return result.ToString();
         }
 
     }
