@@ -18,5 +18,15 @@ namespace DeepMindTest
 
 
         }
+
+        [TestMethod]
+        public void GetLegalMoveTest()
+        {
+            CChessSystem ccs = new CChessSystem();
+            var a = ccs.LegalMoveList();
+            for (int i = 0; i < a.Count; i++)
+                TestContext.WriteLine(a[i].ToTestString());
+        }
     }
 }
+
