@@ -7,27 +7,27 @@ namespace DeepMind.ChineseChess
     //9 x 10棋盤
     //Piece letters
     //將 帥 K k
-    //士 仕 S s
-    //象 相 X x
-    //車 俥 G g
-    //馬 傌 M m
-    //包 炮 B b
+    //士 仕 A a
+    //象 相 B b
+    //車 俥 R r
+    //馬 傌 N n
+    //包 炮 C c
     //卒 兵 P p
 
     //Move
     //炮2平5(炮在h8) h8 e8
     //馬8進7(馬在h1) h1 g3
 
-    //1
-    //2
-    //3
-    //4
-    //5
-    //6
-    //7
-    //8
-    //9
     //10
+    //9
+    //8
+    //7
+    //6
+    //5
+    //4
+    //3
+    //2
+    //1
     //  a b c d e f g h i
 
     //BoardString
@@ -48,12 +48,12 @@ namespace DeepMind.ChineseChess
     public class CChessBoard
     {
         private const string ExceptionString = "\"{0}\" is not a valid Chinese Chess board data string.";
-        public const string ChessLetters = "KSXGMBPksxgmbp ";        
-        public const string StartingBoardString = "gmxsksxmg/9/1b5b1/p1p1p1p1p/9/9/P1P1P1P1P/1B5B1/9/GMXSKSXMG r";
+        public const string ChessLetters = "KABRNCPkabrncp ";        
+        public const string StartingBoardString = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w";
         public static CChessBoard StartingBoard => new CChessBoard();
         public static Dictionary<char, char> LetterToChineseWord => new Dictionary<char, char>()
-        { { 'k', '將' }, { 's', '士' }, { 'x', '象' }, { 'm', '馬' }, { 'g', '車' }, { 'b', '包' }, { 'p', '卒' },
-          { 'K', '帥' }, { 'S', '仕' }, { 'X', '相' }, { 'M', '傌' }, { 'G', '俥' }, { 'B', '炮' }, { 'P', '兵' },
+        { { 'k', '將' }, { 'a', '士' }, { 'b', '象' }, { 'n', '馬' }, { 'r', '車' }, { 'c', '包' }, { 'p', '卒' },
+          { 'K', '帥' }, { 'A', '仕' }, { 'B', '相' }, { 'N', '傌' }, { 'R', '俥' }, { 'C', '炮' }, { 'P', '兵' },
           { ' ', '　'} };
 
         protected char[][] _Data;
@@ -145,7 +145,7 @@ namespace DeepMind.ChineseChess
             }
             _Data = data;
 
-            if (buffer[1] == "r")
+            if (buffer[1] == "w" || buffer[1] == "r")
                 IsBlackTurn = false;
             else if (buffer[1] == "b")
                 IsBlackTurn = true;
@@ -190,7 +190,7 @@ namespace DeepMind.ChineseChess
             }
             result.Remove(result.Length - 1, 1);
             result.Append(' ');
-            result.Append(IsBlackTurn ? 'b' : 'r');
+            result.Append(IsBlackTurn ? 'b' : 'w');
             if(CatchCount[0] == 0 && CatchCount[1] == 0 &&
                CheckmateCount[0] == 0 && CheckmateCount[1] == 0 &&
                HalfMoveCount == 0 && TotalMoveCount == 0)
