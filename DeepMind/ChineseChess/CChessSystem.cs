@@ -155,12 +155,41 @@ namespace DeepMind.ChineseChess
                                 break;
                             case 'X':
                             case 'x':
+                                if ((player == 0 || j >= 7) 
+                                    && i > 1 && j > 1  && CurrentBoard[i - 1, j - 1] == ' ' &&
+                                    !PieceLetters[player].Contains(CurrentBoard[i - 2, j - 2]))
+                                    result.Add(new CChessMove(CurrentBoard[i, j], i, j, i - 2, j - 2));
+                                if ((player == 0 || j >= 7)
+                                    && i < 8 && j > 1 && CurrentBoard[i + 1, j - 1] == ' ' &&
+                                    !PieceLetters[player].Contains(CurrentBoard[i + 2, j - 2]))
+                                    result.Add(new CChessMove(CurrentBoard[i, j], i, j, i + 2, j - 2));                                
+                                if ((player == 1 || j <= 2)
+                                    && i < 8 && j < 8 && CurrentBoard[i + 1, j + 1] == ' ' &&
+                                    !PieceLetters[player].Contains(CurrentBoard[i + 2, j + 2]))
+                                    result.Add(new CChessMove(CurrentBoard[i, j], i, j, i + 2, j + 2));
+                                if ((player == 1 || j <= 2)
+                                    && i > 1 && j < 8 && CurrentBoard[i - 1, j + 1] == ' ' &&
+                                    !PieceLetters[player].Contains(CurrentBoard[i - 2, j + 2]))
+                                    result.Add(new CChessMove(CurrentBoard[i, j], i, j, i - 2, j + 2));
                                 break;
                             case 'S':
                             case 's':
+                                if (((player == 0 && i >= 4 && j > 0) || (player == 1 && i >= 4 && j > 7)) &&
+                                    !PieceLetters[player].Contains(CurrentBoard[i - 1, j - 1]))
+                                    result.Add(new CChessMove(CurrentBoard[i, j], i, j, i - 1, j - 1));
+                                if (((player == 0 && i <= 4 && j > 0) || (player == 1 && i <= 4 && j > 7)) &&
+                                    !PieceLetters[player].Contains(CurrentBoard[i + 1, j - 1]))
+                                    result.Add(new CChessMove(CurrentBoard[i, j], i, j, i + 1, j - 1));
+                                if (((player == 0 && i <= 4 && j < 2) || (player == 1 && i <= 4 && j < 9)) &&
+                                    !PieceLetters[player].Contains(CurrentBoard[i + 1, j + 1]))
+                                    result.Add(new CChessMove(CurrentBoard[i, j], i, j, i + 1, j + 1));
+                                if (((player == 0 && i >= 4 && j < 2) || (player == 1 && i >= 4 && j < 9)) &&
+                                    !PieceLetters[player].Contains(CurrentBoard[i - 1, j + 1]))
+                                    result.Add(new CChessMove(CurrentBoard[i, j], i, j, i - 1, j + 1));
                                 break;
                             case 'K':
                             case 'k':
+
                                 break;
                         }
                     }
