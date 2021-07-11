@@ -198,15 +198,12 @@ namespace DeepMind.ChineseChess
             for(int i = 0; i < 10; i++)
             {            
                 for(int j = 0; j < 9; j++)
-                {
                     result.Append(LetterToChineseWord[_Data[i][j]]);
-                }
                 result.Append('\n');
             }
             if (displayPlayerTurn)
                 result.AppendFormat("下一步：{0}方\n", IsBlackTurn ? "黑" : "紅");            
             return result.ToString();
         }
-
     }
 }
