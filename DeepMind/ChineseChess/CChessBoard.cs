@@ -169,7 +169,7 @@ namespace DeepMind.ChineseChess
             }
         }
 
-        public string PrintBoardString()
+        public string PrintBoardString(bool fileNameFormat = false)
         {
             StringBuilder result = new StringBuilder();
             for (int i = 9; i >= 0; i--)
@@ -194,6 +194,8 @@ namespace DeepMind.ChineseChess
                 result.Append('/');
             }
             result.Remove(result.Length - 1, 1);
+            if (fileNameFormat)
+                return result.ToString().Replace('/','+');
             result.Append(' ');
             result.Append(IsBlackTurn ? 'b' : 'w');
             if(CatchCount[0] == 0 && CatchCount[1] == 0 &&
@@ -220,6 +222,7 @@ namespace DeepMind.ChineseChess
         }
 
         public override string ToString()
-            => PrintBoardString();
+            => PrintBoardString(true);
+            
     }
 }

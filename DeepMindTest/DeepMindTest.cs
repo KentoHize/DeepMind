@@ -12,10 +12,28 @@ namespace DeepMindTest
         public TestContext TestContext { get; set; }
 
         [TestMethod]
+        public void ClearRecords()
+        {
+            DeepMindSystem dms = new DeepMindSystem(new CChessSystem());
+            dms.ClearRecords();
+        }
+
+        [TestMethod]
         public void RecordARandomGame()
         {
             DeepMindSystem dms = new DeepMindSystem(new CChessSystem());
             dms.RecordARandomGame();
+        }
+
+        [TestMethod]
+        public void NRecord100RandomGames()
+        {
+            for(int i = 0; i < 100; i++)
+            {
+                DeepMindSystem dms1 = new DeepMindSystem(new CChessSystem());
+                dms1.RecordARandomGame();
+            }
+                
         }
 
         [TestMethod]
@@ -54,11 +72,7 @@ namespace DeepMindTest
                 DeepMindSystem dms4 = new DeepMindSystem(new CChessSystem());
                 t4 = new Task(() => dms4.RecordARandomGame());
                 t4.Start();
-
-                
             }
         }
-
-
     }
 }
