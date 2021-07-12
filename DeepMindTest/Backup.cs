@@ -1,10 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DeepMind;
+using DeepMind.ChineseChess;
+using System;
+using Aritiafel.Characters.Heroes;
 
 namespace DeepMindTest
 {
-    class Backup
+    [TestClass]
+    public class Backup
     {
+        [TestMethod]
+        public void BackupProject()
+        {
+            Tina.SaveProject("WPF", "DeepMind");
+        }
+
     }
 }

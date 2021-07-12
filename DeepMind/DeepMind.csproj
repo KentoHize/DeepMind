@@ -6,4 +6,9 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\MoveData\" />
+    <Folder Include="Data\BoardData\" />
+  </ItemGroup>
+
 </Project>

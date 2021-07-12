@@ -4,14 +4,13 @@ using System.Text;
 
 namespace DeepMind.ChineseChess
 {
-    public class CChessMove
+    public class CChessMove : IChessMove
     {
         public char Piece { get; set; }
         public byte X1 { get; set; }
         public byte Y1 { get; set; }
         public byte X2 { get; set; }
         public byte Y2 { get; set; }
-
         public CChessMove()
         { }
 
@@ -31,12 +30,57 @@ namespace DeepMind.ChineseChess
         public override string ToString()
             => $"{(char)('a' + X1)}{Y1 + 1} {(char)('a' + X2)}{Y2 + 1}";
 
-        public string ToChineseString()
-        {
-            return "";
-            //To Do
-        }
+        //public string ToChineseString()
+        //{
+        //    StringBuilder result = new StringBuilder();
 
+        //    if (Order == 0)
+        //    {
+        //        result.Append(CChessBoard.LetterToChineseWord[Piece]);
+        //        result.Append(X1 + 1);
+        //    }
+        //    else
+        //    {
+        //        if (Order == 1)
+        //            result.Append("前");
+        //        else if(Order == 2)
+        //            result.Append("後");
+        //        else if (Order == 3)
+        //            result.Append("一");
+        //        else if (Order == 4)
+        //            result.Append("二");
+        //        else if(Order == 5)
+        //            result.Append("三");
+        //        else if (Order == 6)
+        //            result.Append("四");
+        //        else if (Order == 7)
+        //            result.Append("五");
+        //        result.Append(CChessBoard.LetterToChineseWord[Piece]);
+        //    }
+           
+        //    if (Y2 > Y1)
+        //    {
+        //        result.Append("退");
+        //        if (X1 == X2)
+        //            result.Append(Y2 - Y1);
+        //        else
+        //            result.Append(X2 + 1);
+        //    }                
+        //    else if (Y2 == Y1)
+        //    {
+        //        result.Append("平");
+        //        result.Append(X2 + 1);
+        //    }                
+        //    else if (Y2 < Y1)
+        //    {
+        //        result.Append("進");
+        //        if (X1 == X2)
+        //            result.Append(Y1 - Y2);
+        //        else
+        //            result.Append(X2 + 1);
+        //    }
+        //    return result.ToString();
+        //}
         public string ToTestString()
             => $"{CChessBoard.LetterToChineseWord[Piece]} {X1},{Y1} => {X2},{Y2}";
 

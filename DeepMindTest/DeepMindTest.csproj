@@ -17,4 +17,10 @@
     <ProjectReference Include="..\DeepMind\DeepMind.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="Aritiafel">
+      <HintPath>..\..\..\Standard\Aritiafel\Aritiafel\bin\Release\netstandard2.0\Aritiafel.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
