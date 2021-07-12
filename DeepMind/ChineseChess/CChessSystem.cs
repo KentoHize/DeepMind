@@ -129,16 +129,16 @@ namespace DeepMind.ChineseChess
                                 if (i > 0 && j < 8 && ccb[i, j + 1] == ' ' &&
                                     !PieceLetters[player].Contains(ccb[i - 1, j + 2]))
                                     result.Add(new CChessMove(ccb[i, j], i, j, i - 1, j + 2));
-                                if (i < 9 && j < 8 && ccb[i, j + 1] == ' ' &&
+                                if (i < 8 && j < 8 && ccb[i, j + 1] == ' ' &&
                                     !PieceLetters[player].Contains(ccb[i + 1, j + 2]))
                                     result.Add(new CChessMove(ccb[i, j], i, j, i + 1, j + 2));
-                                if (i < 8 && j < 9 && ccb[i + 1, j] == ' ' &&
+                                if (i < 7 && j < 9 && ccb[i + 1, j] == ' ' &&
                                     !PieceLetters[player].Contains(ccb[i + 2, j + 1]))
                                     result.Add(new CChessMove(ccb[i, j], i, j, i + 2, j + 1));
-                                if (i < 8 && j > 0 && ccb[i + 1, j] == ' ' &&
+                                if (i < 7 && j > 0 && ccb[i + 1, j] == ' ' &&
                                     !PieceLetters[player].Contains(ccb[i + 2, j - 1]))
                                     result.Add(new CChessMove(ccb[i, j], i, j, i + 2, j - 1));
-                                if (i < 9 && j > 1 && ccb[i, j - 1] == ' ' &&
+                                if (i < 8 && j > 1 && ccb[i, j - 1] == ' ' &&
                                     !PieceLetters[player].Contains(ccb[i + 1, j - 2]))
                                     result.Add(new CChessMove(ccb[i, j], i, j, i + 1, j - 2));
                                 break;
@@ -261,9 +261,9 @@ namespace DeepMind.ChineseChess
         public GameResult Move(IChessMove move)
         {
             Move(move as CChessMove);
-            if (CurrentBoard.IsBlackTurn && Status == CChessStatus.BlackWin)
+            if (Status == CChessStatus.BlackWin)
                 return GameResult.Player2Win;
-            else if (!CurrentBoard.IsBlackTurn && Status == CChessStatus.RedWin)
+            else if (Status == CChessStatus.RedWin)
                 return GameResult.Player1Win;
             else if (Status == CChessStatus.Draw)
                 return GameResult.Draw;
@@ -324,8 +324,16 @@ namespace DeepMind.ChineseChess
                     else
                         return CChessStatus.RedWin;
             }
+            if (legalMoves.Count == 0)
+                return ccb.IsBlackTurn ? CChessStatus.RedWin : CChessStatus.BlackWin;
             return CChessStatus.Smooth;
         }
+
+        public List<IChessMove> GetMoveRecords()
+            => MoveRecords.ToList<IChessMove>();
+
+        public IChessBoard GetCurrentBoard()
+            => CurrentBoard;
 
         public string ToTestString()
         {
@@ -343,6 +351,7 @@ namespace DeepMind.ChineseChess
             return result.ToString();
         }
 
+        
         public static string GetChineseStepString(CChessBoard ccb, CChessMove ccm)
         {
             //只有兵車炮有順序問題
@@ -359,6 +368,6 @@ namespace DeepMind.ChineseChess
             return "";
         }
 
-       
+        
     }
 }

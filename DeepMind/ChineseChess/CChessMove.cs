@@ -28,7 +28,7 @@ namespace DeepMind.ChineseChess
         { }
 
         public override string ToString()
-            => $"{(char)('a' + X1)}{Y1 + 1} {(char)('a' + X2)}{Y2 + 1}";
+            => $"{(char)('a' + X1)}{Y1}{(char)('a' + X2)}{Y2}";
 
         //public string ToChineseString()
         //{

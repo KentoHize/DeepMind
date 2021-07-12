@@ -11,12 +11,18 @@ namespace DeepMind
         void Abort();
         GameResult Move(IChessMove move);
         List<IChessMove> GetNextMoves();
-
+        List<IChessMove> GetMoveRecords();
+        IChessBoard GetCurrentBoard();
     }
 
     public interface IChessMove
     {
-        
+        string ToString();
+    }
+
+    public interface IChessBoard
+    {
+        string ToString();
     }
 
     public enum GameResult

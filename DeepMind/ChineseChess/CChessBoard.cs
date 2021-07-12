@@ -47,7 +47,7 @@ namespace DeepMind.ChineseChess
     //BoardString 從上往下讀取
     //_Data 從下往上存
     //Indexer X Y易位
-    public class CChessBoard
+    public class CChessBoard : IChessBoard
     {
         private const string ExceptionString = "\"{0}\" is not a valid Chinese Chess board data string.";
         public const string ChessLetters = "KABRNCPkabrncp ";        
@@ -218,5 +218,8 @@ namespace DeepMind.ChineseChess
                 result.AppendFormat("下一步：{0}方\n", IsBlackTurn ? "黑" : "紅");            
             return result.ToString();
         }
+
+        public override string ToString()
+            => PrintBoardString();
     }
 }

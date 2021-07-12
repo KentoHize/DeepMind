@@ -11,4 +11,10 @@
     <Folder Include="Data\BoardData\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="Aritiafel">
+      <HintPath>..\..\..\Standard\Aritiafel\Aritiafel\bin\Release\netstandard2.0\Aritiafel.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
