@@ -35,11 +35,12 @@ namespace CChessEngine
 
         public CChessAI(CChessBoard startBoard = null)
         {
+            BoardNodeDataPath = @"C:\Programs\WPF\DeepMind\CChessEngine\Data\Board";
+            MoveRecordDataPath = @"C:\Programs\WPF\DeepMind\CChessEngine\Data\Move";
             if (startBoard == null)
                 startBoard = CChessBoard.StartingBoard;
             StartBoardNode = LoadBoardNode(startBoard);
-            BoardNodeDataPath = @"C:\Programs\WPF\DeepMind\CChessEngine\Data\Board";
-            MoveRecordDataPath = @"C:\Programs\WPF\DeepMind\CChessEngine\Data\Move";
+            
         }
 
         public CChessBoardNode LoadBoardNode(CChessBoard board)
@@ -49,7 +50,11 @@ namespace CChessEngine
             if (File.Exists(filePath))
                 cbn = Tina.LoadJsonFile<CChessBoardNode>(filePath);
             else
+            {
                 cbn = new CChessBoardNode(board);
+                Tina.SaveJsonFile(filePath, cbn, true);
+            }        
+            //To Do
 
             BoardNodes.Add(cbn);
             return cbn;
