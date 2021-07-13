@@ -27,14 +27,14 @@ namespace CChessEngine
                                 if (player == 0)
                                 {
                                     //未過河 - 紅
-                                    if (j != 0 && !PieceLetters[player].Contains(ccb[i, j - 1]))
-                                        result.Add(new CChessMove(i, j, i, j - 1));
+                                    if (j != 0 && !PieceLetters[player].Contains(ccb[i, j + 1]))
+                                        result.Add(new CChessMove(i, j, i, j + 1));
                                 }
                                 else if (player == 1)
                                 {
                                     //未過河 - 黑
-                                    if (j != 9 && !PieceLetters[player].Contains(ccb[i, j + 1]))
-                                        result.Add(new CChessMove(i, j, i, j + 1));
+                                    if (j != 9 && !PieceLetters[player].Contains(ccb[i, j - 1]))
+                                        result.Add(new CChessMove(i, j, i, j - 1));
                                 }
                                 else if (player == 0 && j <= 4 || player == 1 && j >= 5)
                                 {
@@ -241,39 +241,101 @@ namespace CChessEngine
         public static string PrintChineseMoveString(CChessBoard board, CChessMove move, bool alwayUseChineseNumber = false)
         {
             StringBuilder result = new StringBuilder();
-
-            //board[move.X1, move.Y1]
-
+            char piece;
+            piece = board[move.X1, move.Y1];
+            if(piece == 'R' || piece == 'r' || piece == 'N' || piece == 'n' ||
+                piece == 'C' || piece == 'c' || piece == 'P' || piece =='p')
+            {
+                for(int i = 0; i < 10; i++)
+                {
+                    if(i != move.Y1 && board[move.X1, i] == piece)
+                    {
+                        //同線有同樣單位
+                        if (piece != 'P' && piece != 'p')
+                            result.Append(board.IsBlackTurn ^ i > move.X1 ? "後" : "前");
+                        else
+                        {
+                            int total = 0, order = 0;
+                            if (board.IsBlackTurn)
+                            {
+                                for (int j = 0; j < 9; j++)
+                                {
+                                    int count = 0;
+                                    for (int k = 0; k < 10; k++)
+                                    {
+                                        if (board[j, k] == piece)
+                                            count++;
+                                        if (j == move.X1 && k == move.Y1)
+                                            order = total + count;
+                                    }
+                                    if (count > 1)
+                                        total += count;
+                                }
+                            }
+                            else
+                            {
+                                for (int j = 8; j >= 0; j--)
+                                {
+                                    int count = 0;
+                                    for (int k = 9; k >= 0; k--)
+                                    {
+                                        if (board[j, k] == piece)
+                                            count++;
+                                        if (j == move.X1 && k == move.Y1)
+                                            order = total + count;
+                                    }   
+                                    if (count > 1)
+                                        total += count;
+                                }
+                            }
+                            if (total == 2)
+                                result.Append(order == 1 ? "前" : "後");
+                            else
+                                result.Append(ChineseNumbers[order]);                            
+                        }
+                        result.Append(CChessBoard.LetterToChineseWord[piece]);
+                        break;
+                    }
+                }
+            }
+            if(result.Length == 0)
+            {
+                result.Append(CChessBoard.LetterToChineseWord[piece]);
+                if (!alwayUseChineseNumber)
+                    result.Append(board.IsBlackTurn ? (move.X1 + 1).ToString() : ChineseNumbers[move.X1 + 1].ToString());
+                else
+                    result.Append(ChineseNumbers[move.X1 + 1].ToString());
+            }
 
             if (move.Y1 == move.Y2)
             {
                 result.Append('平');
                 if(!alwayUseChineseNumber)
-                    result.Append(board.IsBlackTurn ? move.X2.ToString() : ChineseNumbers[move.X2].ToString());
+                    result.Append(board.IsBlackTurn ? (move.X2 + 1).ToString() : ChineseNumbers[move.X2 + 1].ToString());
                 else
-                    result.Append(ChineseNumbers[move.X2].ToString());
+                    result.Append(ChineseNumbers[move.X2 + 1].ToString());
             }   
             else if (board.IsBlackTurn)
             {
                 result.Append(move.Y1 > move.Y2 ? '進' : '退');
                 if(!alwayUseChineseNumber)
-                    result.Append(move.X1 == move.X2 ? Math.Abs(move.Y1 - move.Y2) : move.X2);
+                    result.Append(move.X1 == move.X2 ? Math.Abs(move.Y1 - move.Y2) : move.X2 + 1);
                 else
                     result.Append(move.X1 == move.X2 ? ChineseNumbers[Math.Abs(move.Y1 - move.Y2)]
-                    : ChineseNumbers[move.X2]);
+                    : ChineseNumbers[move.X2 + 1]);
             }   
             else
             {
                 result.Append(move.Y1 < move.Y2 ? '進' : '退');
                 result.Append(move.X1 == move.X2 ? ChineseNumbers[Math.Abs(move.Y1 - move.Y2)]
-                    : ChineseNumbers[move.X2]);
+                    : ChineseNumbers[move.X2 + 1]);
             }
             return result.ToString();
         }
 
         public static string PrintMoveString(CChessBoard board,CChessMove move)
         {
-            return "";
+            return move.ToString();
         }
 
 

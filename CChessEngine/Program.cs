@@ -14,8 +14,14 @@ namespace CChessEngine
         {
             CChessBoard board = new CChessBoard();
             var a = CChessSystem.GetLegalMoves(board);
+            Console.OutputEncoding = System.Text.UTF8Encoding.UTF8;
             Console.Write(board.PrintBoard());
-            Console.Write(CChessSystem.PrintChineseMoveString(board, a[0]));
+            for(int i = 0; i < a.Count; i++)
+            {
+                Console.WriteLine(CChessSystem.PrintChineseMoveString(board, a[i]));
+                //Console.WriteLine(CChessSystem.PrintMoveString(board, a[i]));
+            }
+            Console.ReadKey();
         }
     }
 }
