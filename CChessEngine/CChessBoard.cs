@@ -194,11 +194,11 @@ namespace CChessEngine
                 result.Append('/');
             }
             result.Remove(result.Length - 1, 1);
-            if (fileNameFormat)
-                return result.ToString().Replace('/','+');
             result.Append(' ');
             result.Append(IsBlackTurn ? 'b' : 'w');
-            if(CatchCount[0] == 0 && CatchCount[1] == 0 &&
+            if (fileNameFormat)
+                return result.ToString().Replace('/', '_').Replace(' ', '+');
+            if (CatchCount[0] == 0 && CatchCount[1] == 0 &&
                CheckCount[0] == 0 && CheckCount[1] == 0 &&
                HalfMoveCount == 0 && TotalMoveCount == 0)
                 return result.ToString();

@@ -12,7 +12,12 @@ namespace DeepMindTest
         [TestMethod]
         public void BackupProject()
         {
-            Tina.SaveProject("WPF", "DeepMind");
+            Tina.SaveProject(ProjectChoice.DeepMind);
+        }
+
+        public void BackupProjectData()
+        {
+            Tina.SaveProjectData(ProjectChoice.DeepMind);            
         }
 
     }

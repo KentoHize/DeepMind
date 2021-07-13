@@ -9,6 +9,12 @@ namespace CChessEngine
         protected static string[] PieceLetters => new string[] { "KABRNCP", "kabrncp" };
         protected static char[] ChineseNumbers => new char[] { '零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十' };
 
+        protected const char ChineseFront = '前';
+        protected const char ChineseBehind = '後';
+        protected const char ChineseForward = '進';
+        protected const char ChineseBackward = '退';
+        protected const char ChineseParallel = '平';
+
         //由盤面確認下一步
         public static List<CChessMove> GetLegalMoves(CChessBoard ccb)
         {   
@@ -252,7 +258,7 @@ namespace CChessEngine
                     {
                         //同線有同樣單位
                         if (piece != 'P' && piece != 'p')
-                            result.Append(board.IsBlackTurn ^ i > move.X1 ? "後" : "前");
+                            result.Append(board.IsBlackTurn ^ i > move.X1 ? ChineseBehind : ChineseFront);
                         else
                         {
                             int total = 0, order = 0;
@@ -289,7 +295,7 @@ namespace CChessEngine
                                 }
                             }
                             if (total == 2)
-                                result.Append(order == 1 ? "前" : "後");
+                                result.Append(order == 1 ? ChineseFront : ChineseBehind);
                             else
                                 result.Append(ChineseNumbers[order]);                            
                         }
@@ -309,7 +315,7 @@ namespace CChessEngine
 
             if (move.Y1 == move.Y2)
             {
-                result.Append('平');
+                result.Append(ChineseParallel);
                 if(!alwayUseChineseNumber)
                     result.Append(board.IsBlackTurn ? (move.X2 + 1).ToString() : ChineseNumbers[move.X2 + 1].ToString());
                 else
@@ -317,7 +323,7 @@ namespace CChessEngine
             }   
             else if (board.IsBlackTurn)
             {
-                result.Append(move.Y1 > move.Y2 ? '進' : '退');
+                result.Append(move.Y1 > move.Y2 ? ChineseForward : ChineseBackward);
                 if(!alwayUseChineseNumber)
                     result.Append(move.X1 == move.X2 ? Math.Abs(move.Y1 - move.Y2) : move.X2 + 1);
                 else
@@ -326,7 +332,7 @@ namespace CChessEngine
             }   
             else
             {
-                result.Append(move.Y1 < move.Y2 ? '進' : '退');
+                result.Append(move.Y1 < move.Y2 ? ChineseForward : ChineseBackward);
                 result.Append(move.X1 == move.X2 ? ChineseNumbers[Math.Abs(move.Y1 - move.Y2)]
                     : ChineseNumbers[move.X2 + 1]);
             }
