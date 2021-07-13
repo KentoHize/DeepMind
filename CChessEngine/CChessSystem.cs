@@ -27,16 +27,16 @@ namespace CChessEngine
                                 if (player == 0)
                                 {
                                     //未過河 - 紅
-                                    if (j != 0 && !PieceLetters[player].Contains(ccb[i, j + 1]))
+                                    if (j != 9 && !PieceLetters[player].Contains(ccb[i, j + 1]))
                                         result.Add(new CChessMove(i, j, i, j + 1));
                                 }
                                 else if (player == 1)
                                 {
                                     //未過河 - 黑
-                                    if (j != 9 && !PieceLetters[player].Contains(ccb[i, j - 1]))
+                                    if (j != 0 && !PieceLetters[player].Contains(ccb[i, j - 1]))
                                         result.Add(new CChessMove(i, j, i, j - 1));
                                 }
-                                else if (player == 0 && j <= 4 || player == 1 && j >= 5)
+                                if ((player == 0 && j >= 4) || (player == 1 && j <= 5))
                                 {
                                     //已過河                                    
                                     if (i != 0 && !PieceLetters[player].Contains(ccb[i - 1, j]))
