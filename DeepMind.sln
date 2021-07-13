@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31410.357
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeepMind", "DeepMind\DeepMind.csproj", "{8C24420D-F767-4AEB-B409-8859E2812F60}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeepMind", "DeepMind\DeepMind.csproj", "{8C24420D-F767-4AEB-B409-8859E2812F60}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeepMindTest", "DeepMindTest\DeepMindTest.csproj", "{9FFF3A33-AD38-4498-AF85-5CE163E8ADAD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeepMindTest", "DeepMindTest\DeepMindTest.csproj", "{9FFF3A33-AD38-4498-AF85-5CE163E8ADAD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CChessEngine", "CChessEngine\CChessEngine.csproj", "{CC480A48-CEFB-4EA1-A80F-BFD0DF3769F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{9FFF3A33-AD38-4498-AF85-5CE163E8ADAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9FFF3A33-AD38-4498-AF85-5CE163E8ADAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9FFF3A33-AD38-4498-AF85-5CE163E8ADAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC480A48-CEFB-4EA1-A80F-BFD0DF3769F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC480A48-CEFB-4EA1-A80F-BFD0DF3769F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC480A48-CEFB-4EA1-A80F-BFD0DF3769F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC480A48-CEFB-4EA1-A80F-BFD0DF3769F0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
