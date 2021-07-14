@@ -103,9 +103,9 @@ namespace CChessEngine
             {
                 CChessBoard cb;
                 cb = CChessSystem.SimpleMove(node.Board, node.NextMoves[i].Move);
-                List<CChessMove> nextLegalMoves = CChessSystem.GetLegalMoves(cb);
-                CChessStatus status = CChessSystem.CheckStatus(cb, node.NextMoves[i].Move, nextLegalMoves);
                 CChessBoardNode cbn = LoadOrCreateBoardNode(cb);
+                CChessStatus status = CChessSystem.CheckStatus(cb, node.NextMoves[i].Move, cbn.NextMoves.ToMoveList());
+                
                 switch (status)
                 {
                     case CChessStatus.BlackWin:                    
@@ -123,7 +123,7 @@ namespace CChessEngine
                     default:                        
                         break;
                 }
-                node.NextMoves[i].BoardNode = cbn;
+                node.NextMoves[i].BoardNode = cbn;                
 
                 if (BoardRecords.IndexOf(cb) != -1)
                     continue;
@@ -140,8 +140,6 @@ namespace CChessEngine
 
             //UpdateBoardNode();
         }
-
-       
 
         public CChessBoardNode LoadOrCreateBoardNode(CChessBoard board)
         {

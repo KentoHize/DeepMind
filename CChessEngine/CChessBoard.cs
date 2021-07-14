@@ -253,11 +253,6 @@ namespace CChessEngine
             else if (!IsBlackTurn && other.IsBlackTurn)
                 return -1;
 
-            //if (CatchCount[0] > other.CatchCount[0])
-            //    return 1;
-            //else if (CatchCount[0] < other.CatchCount[0])
-            //    return -1;
-
             return 0;
         }
     }

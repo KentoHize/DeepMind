@@ -25,6 +25,14 @@ namespace CChessEngine
             : this((byte)x1, (byte)y1, (byte)x2, (byte)y2)
         { }
 
+        public CChessMove(CChessMove move)
+        {
+            X1 = move.X1;
+            Y1 = move.Y1;
+            X2 = move.X2;
+            Y2 = move.Y2;
+        }
+
         public override string ToString()
             => $"{(char)('a' + X1)}{Y1}{(char)('a' + X2)}{Y2}";
 

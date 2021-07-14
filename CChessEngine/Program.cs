@@ -23,14 +23,19 @@ namespace CChessEngine
             CChessAI ai = new CChessAI();
             CChessMoveData bestMove;
             CChessBoard oldBoard = new CChessBoard(ai.CurrentBoardNode.Board);
-            Console.WriteLine(oldBoard.PrintBoard());
+            Console.WriteLine(oldBoard.PrintBoard());            
+            Console.WriteLine("開打");
             Console.ReadKey();
-            
-            ai.Move(1, out bestMove, out _);
-
-            Console.WriteLine($"AI Move: {CChessSystem.PrintChineseMoveString(oldBoard, bestMove.Move)}");
-            Console.WriteLine(ai.CurrentBoardNode.Board.PrintBoard());
-
+            for (int i = 0; i < 10; i++)
+            {
+                ai.Move(1, out bestMove, out _);
+                Console.WriteLine($"AI 移動: {CChessSystem.PrintChineseMoveString(oldBoard, bestMove.Move)}");
+                Console.WriteLine($"AI Move: {CChessSystem.PrintMoveString(oldBoard, bestMove.Move)}");
+                oldBoard = new CChessBoard(ai.CurrentBoardNode.Board);
+                Console.WriteLine(oldBoard.PrintBoard());
+                Console.ReadKey();
+            }
+            ai.RecordGame();
             Console.WriteLine("End");
             Console.ReadKey();
         }

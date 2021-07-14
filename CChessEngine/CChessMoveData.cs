@@ -9,7 +9,7 @@ namespace CChessEngine
     {
         public CChessMove Move { get; set; }
 
-        [JsonIgnore]
+        [JsonIgnore(Condition = JsonIgnoreCondition.Always)]
         public CChessBoardNode BoardNode { get; set; }
         public CChessMoveData()
             : this(null)
@@ -32,9 +32,19 @@ namespace CChessEngine
             if (movelist == null)
                 return null;
             List<CChessMoveData> result = new List<CChessMoveData>();
-            for(int i = 0; i < movelist.Count; i++)
+            for (int i = 0; i < movelist.Count; i++)
                 result.Add(new CChessMoveData(movelist[i]));
             return result;
         }
+
+        public static List<CChessMove> ToMoveList(this List<CChessMoveData> moveDataList)
+        {
+            if (moveDataList == null)
+                return null;
+            List<CChessMove> result = new List<CChessMove>();
+            for (int i = 0; i < moveDataList.Count; i++)
+                result.Add(new CChessMove(moveDataList[i].Move));
+            return result;
+        } 
     }
 }
