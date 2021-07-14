@@ -48,7 +48,7 @@ namespace CChessEngine
     //BoardString 從上往下讀取
     //_Data 從下往上存
     //Indexer X Y易位
-    public class CChessBoard : IComparable<CChessBoard>
+    public class CChessBoard : IComparable<CChessBoard>, ICloneable
     {
         private const string ExceptionString = "\"{0}\" is not a valid Chinese Chess board data string.";
         public const string ChessLetters = "KABRNCPkabrncp ";        
@@ -255,5 +255,8 @@ namespace CChessEngine
 
             return 0;
         }
+
+        public object Clone()
+            => new CChessBoard(this);
     }
 }

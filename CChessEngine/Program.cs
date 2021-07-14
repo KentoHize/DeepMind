@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Threading;
 
 namespace CChessEngine
 {
@@ -20,19 +21,20 @@ namespace CChessEngine
             //    Console.WriteLine(CChessSystem.PrintChineseMoveString(board, a[i], true));
             //    //Console.WriteLine(CChessSystem.PrintMoveString(board, a[i]));
             //}
-            CChessAI ai = new CChessAI();
+            CChessAI ai = new CChessAI(null, true);
             CChessMoveData bestMove;
             CChessBoard oldBoard = new CChessBoard(ai.CurrentBoardNode.Board);
             Console.WriteLine(oldBoard.PrintBoard());            
             Console.WriteLine("開打");
             Console.ReadKey();
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 100; i++)
             {
-                ai.Move(1, out bestMove, out _);
+                ai.Move(3, out bestMove, out _);                
                 Console.WriteLine($"AI 移動: {CChessSystem.PrintChineseMoveString(oldBoard, bestMove.Move)}");
                 Console.WriteLine($"AI Move: {CChessSystem.PrintMoveString(oldBoard, bestMove.Move)}");
                 oldBoard = new CChessBoard(ai.CurrentBoardNode.Board);
                 Console.WriteLine(oldBoard.PrintBoard());
+                Console.WriteLine(oldBoard.PrintBoardString());
                 Console.ReadKey();
             }
             ai.RecordGame();

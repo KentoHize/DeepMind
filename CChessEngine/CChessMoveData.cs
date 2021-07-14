@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace CChessEngine
 {
-    public class CChessMoveData
+    public class CChessMoveData : ICloneable
     {
         public CChessMove Move { get; set; }
 
@@ -17,12 +17,19 @@ namespace CChessEngine
 
         public CChessMoveData(CChessMove move, CChessBoardNode ccbn = null)
         {
-            if (move == null)
-                return;
             Move = move;
             if(ccbn != null)
                 BoardNode = ccbn;
         }
+
+        public CChessMoveData(CChessMoveData moveData)
+        {
+            Move = moveData.Move;
+            BoardNode = (CChessBoardNode)moveData.BoardNode.Clone();
+        }
+
+        public object Clone()
+            => new CChessMoveData(this);
     }
 
     public static partial class Extension

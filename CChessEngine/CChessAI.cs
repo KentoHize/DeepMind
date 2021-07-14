@@ -30,11 +30,12 @@ namespace CChessEngine
         public SortedDictionary<CChessBoard, CChessBoardNode> BoardNodes { get; set; }
         public List<CChessMove> MoveRecords { get; set; }
         public List<CChessBoard> BoardRecords { get; set; }
+        public bool NoDiskMode { get; set; }
         public CChessAI()
            : this(null)
         { }
 
-        public CChessAI(CChessBoard startBoard = null)
+        public CChessAI(CChessBoard startBoard = null, bool noDiskMode = false)
         {
             BoardNodeDataPath = @"C:\Programs\WPF\DeepMind\CChessEngine\Data\Board";
             MoveRecordDataPath = @"C:\Programs\WPF\DeepMind\CChessEngine\Data\Move";
@@ -43,8 +44,10 @@ namespace CChessEngine
             BoardNodes = new SortedDictionary<CChessBoard, CChessBoardNode>();
             MoveRecords = new List<CChessMove>();
             BoardRecords = new List<CChessBoard>();
+            NoDiskMode = noDiskMode;
             StartBoardNode = LoadOrCreateBoardNode(startBoard);
             CurrentBoardNode = StartBoardNode;
+            
         }
 
         public MoveStatus Go(CChessBoardNode bn, int depth, out CChessMoveData bestMoveData, out List<CChessMoveData> estimateMoves)
@@ -144,14 +147,20 @@ namespace CChessEngine
         public CChessBoardNode LoadOrCreateBoardNode(CChessBoard board)
         {
             CChessBoardNode cbn;
-            string filePath = Path.Combine(BoardNodeDataPath, $"{board.PrintBoardString(true)}.json");
-            if (File.Exists(filePath))
-                cbn = Tina.LoadJsonFile<CChessBoardNode>(filePath);
-            else
+            if (!NoDiskMode)
             {
-                cbn = new CChessBoardNode(board);
-                Tina.SaveJsonFile(filePath, cbn, true);
+                string filePath = Path.Combine(BoardNodeDataPath, $"{board.PrintBoardString(true)}.json");
+                if (File.Exists(filePath))
+                    cbn = Tina.LoadJsonFile<CChessBoardNode>(filePath);
+                else
+                {
+                    cbn = new CChessBoardNode(board);
+                    Tina.SaveJsonFile(filePath, cbn, true);
+                }
             }
+            else
+                cbn = new CChessBoardNode(board);
+
             if(!BoardNodes.ContainsKey(board))
                 BoardNodes.Add(board, cbn);
             return cbn;
@@ -159,6 +168,8 @@ namespace CChessEngine
 
         public void UpdateBoardNode()
         {
+            if (NoDiskMode)
+                return;
             foreach(CChessBoardNode node in BoardNodes.Values)
             {
                 string filePath = Path.Combine(BoardNodeDataPath, $"{node.Board.PrintBoardString(true)}.json");

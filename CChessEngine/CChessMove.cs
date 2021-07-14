@@ -4,14 +4,12 @@ using System.Text;
 
 namespace CChessEngine
 {
-    public class CChessMove
+    public struct CChessMove
     {
         public byte X1 { get; set; }
         public byte Y1 { get; set; }
         public byte X2 { get; set; }
         public byte Y2 { get; set; }
-        public CChessMove()
-        { }
 
         public CChessMove(byte x1, byte y1, byte x2, byte y2)
         {   

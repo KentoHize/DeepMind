@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CChessEngine
 {
-    public class CChessBoardNode
+    public class CChessBoardNode : ICloneable
     {
         public const long DefaultScore = 50000000000000000;
         public const long MaxScore = 100000000000000000;
@@ -23,14 +23,29 @@ namespace CChessEngine
 
         public CChessBoardNode(CChessBoard board, List<CChessMoveData> nextMoves = null)
         {
-            Board = board;            
+            Board = new CChessBoard(board);
             Score = DefaultScore;
             if (board == null)
                 return;
             if (nextMoves == null)
                 nextMoves = CChessSystem.GetLegalMoves(board).ToMoveDataList();
-            NextMoves = nextMoves;
+            NextMoves = new List<CChessMoveData>(nextMoves);
         }
+
+        public CChessBoardNode(CChessBoardNode node)
+        {
+            Board = new CChessBoard(node.Board);
+            NextMoves = new List<CChessMoveData>(node.NextMoves);
+            Player1WinCount = node.Player1WinCount;
+            Player2WinCount = node.Player2WinCount;
+            DrawCount = node.DrawCount;
+            DrawNode = node.DrawNode;
+            Score = node.Score;
+            CompleteNode = node.CompleteNode;            
+        }
+
+        public object Clone()
+            => new CChessBoardNode(this);
 
         //public CChessBoardNode(CChessBoard board, List<C>)
 
