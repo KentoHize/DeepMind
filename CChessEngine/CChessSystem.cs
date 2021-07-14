@@ -218,6 +218,22 @@ namespace CChessEngine
             return result;
         }
 
+        public static CChessBoard SimpleMove(CChessBoard board, CChessMove move, bool checkLegal = false)
+        {
+            if(checkLegal)
+            {
+                List<CChessMove> legalMoves = GetLegalMoves(board);
+                if (legalMoves.IndexOf(move) == -1)
+                    throw new ArgumentOutOfRangeException(nameof(move));
+            }
+
+            char piece = board[move.X1, move.Y1];
+            board[move.X2, move.Y2] = piece;
+            board[move.X1, move.Y1] = ' ';
+            board.IsBlackTurn = !board.IsBlackTurn;            
+            return board;            
+        }
+
         public static CChessStatus CheckStatus(CChessBoard board, CChessMove move, List<CChessMove> legalMoves = null)
         {
             if (board == CChessBoard.StartingBoard)

@@ -7,7 +7,7 @@ namespace CChessEngine
     public class CChessMoveData
     {
         public CChessMove Move { get; set; }
-        public CChessBoardNode NextBoardNode { get; set; }
+        public CChessBoardNode BoardNode { get; set; }
         public CChessMoveData()
             : this(null)
         { }
@@ -18,7 +18,7 @@ namespace CChessEngine
                 return;
             Move = move;
             if(ccbn != null)
-                NextBoardNode = ccbn;
+                BoardNode = ccbn;
         }
     }
 
