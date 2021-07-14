@@ -64,8 +64,12 @@ namespace CChessEngine
         public int[] CheckCount { get; protected set; } = new int[2];
         public int HalfMoveCount { get; set; }
         public int TotalMoveCount { get; set; }
-        public CChessBoard(string boardString = StartingBoardString)
+        public CChessBoard(string boardString)
             => LoadBoardString(boardString);
+
+        public CChessBoard()
+            : this(StartingBoardString)
+        { }
 
         //取出相反
         public char this[int x, int y]
@@ -86,7 +90,7 @@ namespace CChessEngine
                     if (value[i].Length != 9)
                         throw new ArgumentException(string.Format(ExceptionString, "This"));
                     for (int j = 0; j < 9; j++)
-                        if (!ChessLetters.Contains(value[i][j]))
+                        if (!ChessLetters.Contains(value[i][j].ToString()))
                             throw new ArgumentException(string.Format(ExceptionString, "This"));
                 }
                 _Data = value;
@@ -113,13 +117,13 @@ namespace CChessEngine
         {
             Clear();
             string[] buffer, buffer2;
-            if (!value.Contains(' '))
+            if (!value.Contains(" "))
                 throw new ArgumentException(string.Format(ExceptionString, value));
             buffer = value.Split(' ');
 
             if(buffer.Length != 2 && buffer.Length != 10)
                 throw new ArgumentException(string.Format(ExceptionString, value));
-            if (!buffer[0].Contains('/'))
+            if (!buffer[0].Contains("/"))
                 throw new ArgumentException(string.Format(ExceptionString, value));
             buffer2 = buffer[0].Split('/');
             if (buffer2.Length != 10)
@@ -142,7 +146,7 @@ namespace CChessEngine
                     }
                     else
                     {
-                        if (!ChessLetters.Contains(buffer2[9 - i][j]))
+                        if (!ChessLetters.Contains(buffer2[9 - i][j].ToString()))
                             throw new ArgumentException(string.Format(ExceptionString, value));
                         data[i][p++] = buffer2[9 - i][j];
                     }

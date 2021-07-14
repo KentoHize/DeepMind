@@ -39,6 +39,8 @@ namespace CChessEngine
             MoveRecordDataPath = @"C:\Programs\WPF\DeepMind\CChessEngine\Data\Move";
             if (startBoard == null)
                 startBoard = CChessBoard.StartingBoard;
+            BoardNodes = new List<CChessBoardNode>();
+            MoveRecords = new List<CChessMove>();
             StartBoardNode = LoadBoardNode(startBoard);
             
         }

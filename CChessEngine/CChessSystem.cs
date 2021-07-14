@@ -24,7 +24,7 @@ namespace CChessEngine
             {
                 for (int j = 0; j < 10; j++)
                 {
-                    if (PieceLetters[player].Contains(ccb[i, j]))
+                    if (PieceLetters[player].Contains(ccb[i, j].ToString()))
                     {
                         switch (ccb[i, j])
                         {
@@ -33,21 +33,21 @@ namespace CChessEngine
                                 if (player == 0)
                                 {
                                     //未過河 - 紅
-                                    if (j != 9 && !PieceLetters[player].Contains(ccb[i, j + 1]))
+                                    if (j != 9 && !PieceLetters[player].Contains(ccb[i, j + 1].ToString()))
                                         result.Add(new CChessMove(i, j, i, j + 1));
                                 }
                                 else if (player == 1)
                                 {
                                     //未過河 - 黑
-                                    if (j != 0 && !PieceLetters[player].Contains(ccb[i, j - 1]))
+                                    if (j != 0 && !PieceLetters[player].Contains(ccb[i, j - 1].ToString()))
                                         result.Add(new CChessMove(i, j, i, j - 1));
                                 }
                                 if ((player == 0 && j >= 4) || (player == 1 && j <= 5))
                                 {
                                     //已過河                                    
-                                    if (i != 0 && !PieceLetters[player].Contains(ccb[i - 1, j]))
+                                    if (i != 0 && !PieceLetters[player].Contains(ccb[i - 1, j].ToString()))
                                         result.Add(new CChessMove(i, j, i - 1, j));
-                                    if (i != 8 && !PieceLetters[player].Contains(ccb[i + 1, j]))
+                                    if (i != 8 && !PieceLetters[player].Contains(ccb[i + 1, j].ToString()))
                                         result.Add(new CChessMove(i, j, i + 1, j));
                                 }
                                 break;
@@ -62,7 +62,7 @@ namespace CChessEngine
                                         isRun = false;
                                     else if (ccb[x, y] != ' ')
                                     {
-                                        if (PieceLetters[1 - player].Contains(ccb[x, y]))
+                                        if (PieceLetters[1 - player].Contains(ccb[x, y].ToString()))
                                             result.Add(new CChessMove(i, j, x, y));
                                         return false;
                                     }
@@ -93,7 +93,7 @@ namespace CChessEngine
                                         result.Add(new CChessMove(i, j, x, y));
                                     else if (ccb[x, y] != ' ')
                                     {
-                                        if (PieceLetters[1 - player].Contains(ccb[x, y]))
+                                        if (PieceLetters[1 - player].Contains(ccb[x, y].ToString()))
                                             result.Add(new CChessMove(i, j, x, y));
                                         return false;
                                     }
@@ -116,75 +116,75 @@ namespace CChessEngine
                             case 'N':
                             case 'n':
                                 if (i > 0 && j > 1 && ccb[i, j - 1] == ' ' &&
-                                    !PieceLetters[player].Contains(ccb[i - 1, j - 2]))
+                                    !PieceLetters[player].Contains(ccb[i - 1, j - 2].ToString()))
                                     result.Add(new CChessMove(i, j, i - 1, j - 2));
                                 if (i > 1 && j > 0 && ccb[i - 1, j] == ' ' &&
-                                    !PieceLetters[player].Contains(ccb[i - 2, j - 1]))
+                                    !PieceLetters[player].Contains(ccb[i - 2, j - 1].ToString()))
                                     result.Add(new CChessMove(i, j, i - 2, j - 1));
                                 if (i > 1 && j < 9 && ccb[i - 1, j] == ' ' &&
-                                    !PieceLetters[player].Contains(ccb[i - 2, j + 1]))
+                                    !PieceLetters[player].Contains(ccb[i - 2, j + 1].ToString()))
                                     result.Add(new CChessMove(i, j, i - 2, j + 1));
                                 if (i > 0 && j < 8 && ccb[i, j + 1] == ' ' &&
-                                    !PieceLetters[player].Contains(ccb[i - 1, j + 2]))
+                                    !PieceLetters[player].Contains(ccb[i - 1, j + 2].ToString()))
                                     result.Add(new CChessMove(i, j, i - 1, j + 2));
                                 if (i < 8 && j < 8 && ccb[i, j + 1] == ' ' &&
-                                    !PieceLetters[player].Contains(ccb[i + 1, j + 2]))
+                                    !PieceLetters[player].Contains(ccb[i + 1, j + 2].ToString()))
                                     result.Add(new CChessMove(i, j, i + 1, j + 2));
                                 if (i < 7 && j < 9 && ccb[i + 1, j] == ' ' &&
-                                    !PieceLetters[player].Contains(ccb[i + 2, j + 1]))
+                                    !PieceLetters[player].Contains(ccb[i + 2, j + 1].ToString()))
                                     result.Add(new CChessMove(i, j, i + 2, j + 1));
                                 if (i < 7 && j > 0 && ccb[i + 1, j] == ' ' &&
-                                    !PieceLetters[player].Contains(ccb[i + 2, j - 1]))
+                                    !PieceLetters[player].Contains(ccb[i + 2, j - 1].ToString()))
                                     result.Add(new CChessMove(i, j, i + 2, j - 1));
                                 if (i < 8 && j > 1 && ccb[i, j - 1] == ' ' &&
-                                    !PieceLetters[player].Contains(ccb[i + 1, j - 2]))
+                                    !PieceLetters[player].Contains(ccb[i + 1, j - 2].ToString()))
                                     result.Add(new CChessMove(i, j, i + 1, j - 2));
                                 break;
                             case 'B':
                             case 'b':
                                 if ((player == 0 || j >= 7)
                                     && i > 1 && j > 1 && ccb[i - 1, j - 1] == ' ' &&
-                                    !PieceLetters[player].Contains(ccb[i - 2, j - 2]))
+                                    !PieceLetters[player].Contains(ccb[i - 2, j - 2].ToString()))
                                     result.Add(new CChessMove(i, j, i - 2, j - 2));
                                 if ((player == 0 || j >= 7)
                                     && i < 8 && j > 1 && ccb[i + 1, j - 1] == ' ' &&
-                                    !PieceLetters[player].Contains(ccb[i + 2, j - 2]))
+                                    !PieceLetters[player].Contains(ccb[i + 2, j - 2].ToString()))
                                     result.Add(new CChessMove(i, j, i + 2, j - 2));
                                 if ((player == 1 || j <= 2)
                                     && i < 8 && j < 8 && ccb[i + 1, j + 1] == ' ' &&
-                                    !PieceLetters[player].Contains(ccb[i + 2, j + 2]))
+                                    !PieceLetters[player].Contains(ccb[i + 2, j + 2].ToString()))
                                     result.Add(new CChessMove(i, j, i + 2, j + 2));
                                 if ((player == 1 || j <= 2)
                                     && i > 1 && j < 8 && ccb[i - 1, j + 1] == ' ' &&
-                                    !PieceLetters[player].Contains(ccb[i - 2, j + 2]))
+                                    !PieceLetters[player].Contains(ccb[i - 2, j + 2].ToString()))
                                     result.Add(new CChessMove(i, j, i - 2, j + 2));
                                 break;
                             case 'A':
                             case 'a':
                                 if (((player == 0 && i >= 4 && j > 0) || (player == 1 && i >= 4 && j > 7)) &&
-                                    !PieceLetters[player].Contains(ccb[i - 1, j - 1]))
+                                    !PieceLetters[player].Contains(ccb[i - 1, j - 1].ToString()))
                                     result.Add(new CChessMove(i, j, i - 1, j - 1));
                                 if (((player == 0 && i <= 4 && j > 0) || (player == 1 && i <= 4 && j > 7)) &&
-                                    !PieceLetters[player].Contains(ccb[i + 1, j - 1]))
+                                    !PieceLetters[player].Contains(ccb[i + 1, j - 1].ToString()))
                                     result.Add(new CChessMove(i, j, i + 1, j - 1));
                                 if (((player == 0 && i <= 4 && j < 2) || (player == 1 && i <= 4 && j < 9)) &&
-                                    !PieceLetters[player].Contains(ccb[i + 1, j + 1]))
+                                    !PieceLetters[player].Contains(ccb[i + 1, j + 1].ToString()))
                                     result.Add(new CChessMove(i, j, i + 1, j + 1));
                                 if (((player == 0 && i >= 4 && j < 2) || (player == 1 && i >= 4 && j < 9)) &&
-                                    !PieceLetters[player].Contains(ccb[i - 1, j + 1]))
+                                    !PieceLetters[player].Contains(ccb[i - 1, j + 1].ToString()))
                                     result.Add(new CChessMove(i, j, i - 1, j + 1));
                                 break;
                             case 'K':
                             case 'k':
-                                if (i >= 4 && !PieceLetters[player].Contains(ccb[i - 1, j]))
+                                if (i >= 4 && !PieceLetters[player].Contains(ccb[i - 1, j].ToString()))
                                     result.Add(new CChessMove(i, j, i - 1, j));
-                                if (i <= 4 && !PieceLetters[player].Contains(ccb[i + 1, j]))
+                                if (i <= 4 && !PieceLetters[player].Contains(ccb[i + 1, j].ToString()))
                                     result.Add(new CChessMove(i, j, i + 1, j));
                                 if (((player == 0 && j > 1) || (player == 1 && j > 7)) &&
-                                    !PieceLetters[player].Contains(ccb[i, j - 1]))
+                                    !PieceLetters[player].Contains(ccb[i, j - 1].ToString()))
                                     result.Add(new CChessMove(i, j, i, j - 1));
                                 if (((player == 0 && j < 2) || (player == 1 && j < 9)) &&
-                                    !PieceLetters[player].Contains(ccb[i, j + 1]))
+                                    !PieceLetters[player].Contains(ccb[i, j + 1].ToString()))
                                     result.Add(new CChessMove(i, j, i, j + 1));
 
                                 bool CheckStraightKing(int x, int y)

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -11,9 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Aritiafel">
-      <HintPath>..\..\..\Standard\Aritiafel\Aritiafel\bin\Release\netstandard2.0\Aritiafel.dll</HintPath>
-    </Reference>
+    <PackageReference Include="Aritiafel" Version="1.0.1" />
   </ItemGroup>
 
 </Project>
