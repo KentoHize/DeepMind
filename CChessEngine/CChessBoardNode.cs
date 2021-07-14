@@ -14,6 +14,7 @@ namespace CChessEngine
         public long Player2WinCount { get; set; }
         public long DrawCount { get; set; }
         public long Score { get; set; }
+        public bool DrawNode { get; set; }
         public bool CompleteNode { get; set; }
 
         public CChessBoardNode()

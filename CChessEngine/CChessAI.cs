@@ -26,20 +26,31 @@ namespace CChessEngine
         public string BoardNodeDataPath { get; set; }
         public string MoveRecordDataPath { get; set; }
         public CChessBoardNode StartBoardNode { get; set; }
+        public CChessBoardNode CurrentBoardNode { get; set; }
         public SortedDictionary<CChessBoard, CChessBoardNode> BoardNodes { get; set; }
         public List<CChessMove> MoveRecords { get; set; }
         public List<CChessBoard> BoardRecords { get; set; }
-        public MoveStatus Go(CChessBoard board, int depth = 0, out CChessMoveData bestMoveData, out List<CChessMoveData> estimateMoves)
+        public CChessAI()
+           : this(null)
+        { }
+
+        public CChessAI(CChessBoard startBoard = null)
+        {
+            BoardNodeDataPath = @"C:\Programs\WPF\DeepMind\CChessEngine\Data\Board";
+            MoveRecordDataPath = @"C:\Programs\WPF\DeepMind\CChessEngine\Data\Move";
+            if (startBoard == null)
+                startBoard = CChessBoard.StartingBoard;            
+            BoardNodes = new SortedDictionary<CChessBoard, CChessBoardNode>();
+            MoveRecords = new List<CChessMove>();
+            BoardRecords = new List<CChessBoard>();
+            StartBoardNode = LoadOrCreateBoardNode(startBoard);
+            CurrentBoardNode = StartBoardNode;
+        }
+
+        public MoveStatus Go(CChessBoardNode bn, int depth, out CChessMoveData bestMoveData, out List<CChessMoveData> estimateMoves)
         {
             bestMoveData = null;
             estimateMoves = null;
-
-            //Load Update BoardNode
-            CChessBoardNode bn;
-            if (BoardNodes.ContainsKey(board))
-                bn = BoardNodes[board];
-            else
-                bn = LoadOrCreateBoardNode(board);
 
             if (bn.NextMoves.Count == 0)
                 return MoveStatus.Resign;
@@ -50,12 +61,39 @@ namespace CChessEngine
             
             bestMoveData = bn.NextMoves[0];
             for (int i = 1; i < bn.NextMoves.Count; i++)
-            {
                 if (bn.NextMoves[i].BoardNode.Score > bestMoveData.BoardNode.Score)
                     bestMoveData = bn.NextMoves[i];
-            }
             
             return MoveStatus.BestMove;
+        }
+
+        public MoveStatus Go(CChessBoard board, int depth, out CChessMoveData bestMoveData, out List<CChessMoveData> estimateMoves)
+        {
+            CChessBoardNode bn;
+            if (BoardNodes.ContainsKey(board))
+                bn = BoardNodes[board];
+            else
+                bn = LoadOrCreateBoardNode(board);
+            return Go(bn, depth, out bestMoveData, out estimateMoves);
+        }
+
+        public MoveStatus Move(int depth, out CChessMoveData bestMoveData, out List<CChessMoveData> estimateMoves)
+        {
+            MoveStatus result = Go(CurrentBoardNode, depth, out bestMoveData, out estimateMoves);
+            if(result != MoveStatus.Resign)
+            {
+                CurrentBoardNode = bestMoveData.BoardNode;
+                MoveRecords.Add(bestMoveData.Move);
+                BoardRecords.Add(CurrentBoardNode.Board);
+            }
+            return result;
+        }
+
+        //結束時紀錄全局
+        public void RecordGame()
+        {
+            // To Do
+            UpdateBoardNode();
         }
 
         public void ExpandBoardNode(CChessBoardNode node, int depth = 1)
@@ -99,24 +137,11 @@ namespace CChessEngine
             for(int i = 0; i < node.NextMoves.Count; i++)
                 totalScore += node.NextMoves[i].BoardNode.Score;
             node.Score = CChessBoardNode.MaxScore - (long)(totalScore / node.NextMoves.Count);
+
+            //UpdateBoardNode();
         }
 
-        public CChessAI()
-            : this(null)
-        { }
-
-        public CChessAI(CChessBoard startBoard = null)
-        {
-            BoardNodeDataPath = @"C:\Programs\WPF\DeepMind\CChessEngine\Data\Board";
-            MoveRecordDataPath = @"C:\Programs\WPF\DeepMind\CChessEngine\Data\Move";
-            if (startBoard == null)
-                startBoard = CChessBoard.StartingBoard;
-            BoardNodes = new SortedDictionary<CChessBoard, CChessBoardNode>();
-            MoveRecords = new List<CChessMove>();
-            BoardRecords = new List<CChessBoard>();
-            StartBoardNode = LoadOrCreateBoardNode(startBoard);
-        
-        }
+       
 
         public CChessBoardNode LoadOrCreateBoardNode(CChessBoard board)
         {
@@ -129,8 +154,18 @@ namespace CChessEngine
                 cbn = new CChessBoardNode(board);
                 Tina.SaveJsonFile(filePath, cbn, true);
             }
-            BoardNodes.Add(board, cbn);
+            if(!BoardNodes.ContainsKey(board))
+                BoardNodes.Add(board, cbn);
             return cbn;
+        }
+
+        public void UpdateBoardNode()
+        {
+            foreach(CChessBoardNode node in BoardNodes.Values)
+            {
+                string filePath = Path.Combine(BoardNodeDataPath, $"{node.Board.PrintBoardString(true)}.json");
+                Tina.SaveJsonFile(filePath, node, true);
+            }
         }
     }
 }

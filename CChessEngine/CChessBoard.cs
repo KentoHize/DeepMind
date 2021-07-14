@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace CChessEngine
@@ -47,7 +48,7 @@ namespace CChessEngine
     //BoardString 從上往下讀取
     //_Data 從下往上存
     //Indexer X Y易位
-    public class CChessBoard
+    public class CChessBoard : IComparable<CChessBoard>
     {
         private const string ExceptionString = "\"{0}\" is not a valid Chinese Chess board data string.";
         public const string ChessLetters = "KABRNCPkabrncp ";        
@@ -66,6 +67,9 @@ namespace CChessEngine
         public int TotalMoveCount { get; set; }
         public CChessBoard(string boardString)
             => LoadBoardString(boardString);
+
+        public CChessBoard(CChessBoard board)
+            => LoadBoardString(board.PrintBoardString());
 
         public CChessBoard()
             : this(StartingBoardString)
@@ -227,6 +231,34 @@ namespace CChessEngine
 
         public override string ToString()
             => PrintBoardString(true);
-            
+
+        public int CompareTo([AllowNull] CChessBoard other)
+        {
+            if (other == null)
+                return 1;
+
+            for (int i = 0; i < 9; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    if (this[i, j] > other[i, j])
+                        return 1;
+                    else if (this[i, j] < other[i, j])
+                        return -1;
+                }
+            }
+
+            if (IsBlackTurn && !other.IsBlackTurn)
+                return 1;
+            else if (!IsBlackTurn && other.IsBlackTurn)
+                return -1;
+
+            //if (CatchCount[0] > other.CatchCount[0])
+            //    return 1;
+            //else if (CatchCount[0] < other.CatchCount[0])
+            //    return -1;
+
+            return 0;
+        }
     }
 }

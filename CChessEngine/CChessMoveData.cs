@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace CChessEngine
 {
     public class CChessMoveData
     {
         public CChessMove Move { get; set; }
+
+        [JsonIgnore]
         public CChessBoardNode BoardNode { get; set; }
         public CChessMoveData()
             : this(null)
