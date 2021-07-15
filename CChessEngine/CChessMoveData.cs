@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace CChessEngine
 {
-    public class CChessMoveData : ICloneable, IComparer<CChessMoveData>
+    public class CChessMoveData : ICloneable, IComparer<CChessMoveData>, IComparable<CChessMoveData>
     {
         public CChessMove Move { get; set; }
 
@@ -49,6 +49,9 @@ namespace CChessEngine
             else
                 return x.BoardNode.CChessScore > y.BoardNode.CChessScore ? 1 : -1;
         }
+
+        public int CompareTo([AllowNull] CChessMoveData other)
+            => Compare(this, other);
     }
 
     public static partial class Extension

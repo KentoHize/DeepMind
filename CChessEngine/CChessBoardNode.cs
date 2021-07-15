@@ -11,6 +11,7 @@ namespace CChessEngine
         public CChessBoard Board { get; set; }
         public CChessStatus Status { get; set; }
         public SortedSet<CChessMoveData> NextMoves { get; set; }
+        public CChessBoardNode Parent { get; set; }
         public long Player1WinCount { get; set; }
         public long Player2WinCount { get; set; }
         public long DrawCount { get; set; }
@@ -24,12 +25,14 @@ namespace CChessEngine
             : this(null)
         { }
 
-        public CChessBoardNode(CChessBoard board, SortedSet<CChessMoveData> nextMoves = null)
+        public CChessBoardNode(CChessBoard board, CChessBoardNode parent = null, SortedSet<CChessMoveData> nextMoves = null)
         {
             Board = new CChessBoard(board);
             Player1WinScore = DefaultScore;
+            CChessScore = DefaultScore;
             if (board == null)
                 return;
+            Parent = parent;            
             if (nextMoves == null)
                 nextMoves = CChessSystem.GetLegalMoves(board).ToMoveDataList();
             NextMoves = new SortedSet<CChessMoveData>(nextMoves);
@@ -44,7 +47,11 @@ namespace CChessEngine
             DrawCount = node.DrawCount;
             DrawNode = node.DrawNode;
             Player1WinScore = node.Player1WinScore;
-            CompleteNode = node.CompleteNode;            
+            CChessScore = node.CChessScore;
+            CompleteNode = node.CompleteNode;
+            Searched = node.Searched;
+            Status = node.Status;
+            Parent = node.Parent;
         }
 
         public object Clone()
