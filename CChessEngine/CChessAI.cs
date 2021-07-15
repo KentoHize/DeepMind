@@ -33,11 +33,12 @@ namespace CChessEngine
         public List<CChessBoard> BoardRecords { get; set; }
         public bool NoDiskMode { get; set; }
         public bool NoBoardRecordMode { get; set; }
+        public int MeasureScoreLevel { get; set; }
         public CChessAI()
            : this(null)
         { }
 
-        public CChessAI(CChessBoard startBoard = null, bool noDiskMode = false, bool noBoardRecordMode = false)
+        public CChessAI(CChessBoard startBoard = null, bool noDiskMode = false, bool noBoardRecordMode = false, int measureLevel = 2)
         {
             BoardNodeDataPath = @"C:\Programs\WPF\DeepMind\CChessEngine\Data\Board";
             MoveRecordDataPath = @"C:\Programs\WPF\DeepMind\CChessEngine\Data\Move";
@@ -49,6 +50,7 @@ namespace CChessEngine
             BoardRecords = new List<CChessBoard>();
             NoDiskMode = noDiskMode;
             NoBoardRecordMode = noBoardRecordMode;
+            MeasureScoreLevel = measureLevel;            
             StartBoardNode = LoadOrCreateBoardNode(startBoard, null);
             CurrentBoardNode = StartBoardNode;
         }
@@ -100,14 +102,14 @@ namespace CChessEngine
         }
 
         public string PrintChilds(CChessBoardNode node, string startString = "")
-        {   
+        {
             if (node.Searched)
             {
                 StringBuilder result = new StringBuilder();
                 foreach (CChessMoveData cmd in node.NextMoves)
-                {   
+                {
                     string buffer = string.Concat(startString, CChessSystem.PrintChineseMoveString(node.Board, cmd.Move), " ");
-                    result.Append(buffer);               
+                    result.Append(buffer);
                     result.Append(PrintChilds(cmd.BoardNode, buffer));
                 }
                 return result.ToString();
@@ -119,7 +121,7 @@ namespace CChessEngine
         {
             Console.WriteLine("可能局面:");
             Console.WriteLine(PrintChilds(rootNode));
-            Console.WriteLine("-----");            
+            Console.WriteLine("-----");
         }
 
         public List<CChessMoveData> BestFS(CChessBoardNode startNode, long nodeCount = 100, int width = 3)
@@ -140,7 +142,7 @@ namespace CChessEngine
             //    Console.WriteLine(string.Concat(CChessSystem.PrintChineseMoveString(startNode.Board, cmd.Move, true),
             //        ":", cmd.BoardNode.CChessScore));
             //}
-            List<CChessBoardNode> bestNodes = GetBestNodes(startNode, width);            
+            List<CChessBoardNode> bestNodes = GetBestNodes(startNode, width);
             while (nodeCount > 0)
             {
                 for (int i = 0; i < bestNodes.Count; i++)
@@ -152,7 +154,7 @@ namespace CChessEngine
                 }
                 bestNodes = GetBestNodes(startNode, width);
             }
-          
+
             PrintNodeTree(startNode, bestNodes);
 
             List<CChessMoveData> result = new List<CChessMoveData>();
@@ -321,7 +323,10 @@ namespace CChessEngine
                             CChessBoardNode.MaxScore;
                             continue;
                         default:
-                            nextBoardNode.CChessScore = MeasureScore(nextBoard);
+                            if(MeasureScoreLevel == 1)
+                                nextBoardNode.CChessScore = CChessBoardScoreCalculator.MeasureScore(nextBoard);
+                            else if(MeasureScoreLevel == 2)
+                                nextBoardNode.CChessScore = CChessBoardScoreCalculator.MeasureScorePrecision(nextBoard);
                             break;
                     }
                 }
@@ -369,63 +374,6 @@ namespace CChessEngine
             }
         }
 
-        //NoDisk專門使用
-        //一般運算
-        public static long MeasureScore(CChessBoard board)
-        {
-            //車6x分 馬3x分 炮3x分 過河兵2x分 兵x分 象x分 士x分
-            //最少32 + 5 + 2 + 2 = 39分
-            //最多32 + 10 + 2 + 2 = 44分
-            //最小-44分
-            long result = 44;
-            for (int i = 0; i < 9; i++)
-            {
-                for (int j = 0; j < 10; j++)
-                {
-                    switch (board[i, j])
-                    {
-                        case 'p':
-                            result -= 1;
-                            break;
-                        case 'P':
-                            result += 1;
-                            break;
-                        case 'c':
-                            result -= 3;
-                            break;
-                        case 'C':
-                            result += 3;
-                            break;
-                        case 'n':
-                            result -= 3;
-                            break;
-                        case 'N':
-                            result += 3;
-                            break;
-                        case 'r':
-                            result -= 6;
-                            break;
-                        case 'R':
-                            result += 6;
-                            break;
-                        case 'b':
-                            result -= 1;
-                            break;
-                        case 'B':
-                            result += 1;
-                            break;
-                        case 'a':
-                            result -= 1;
-                            break;
-                        case 'A':
-                            result += 1;
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-            return result * (CChessBoardNode.MaxScore / 90);
-        }
+       
     }
 }
