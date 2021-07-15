@@ -50,7 +50,7 @@ namespace CChessEngine
             BoardRecords = new List<CChessBoard>();
             NoDiskMode = noDiskMode;
             NoBoardRecordMode = noBoardRecordMode;
-            MeasureScoreLevel = measureLevel;            
+            MeasureScoreLevel = measureLevel;
             StartBoardNode = LoadOrCreateBoardNode(startBoard, null);
             CurrentBoardNode = StartBoardNode;
         }
@@ -117,11 +117,34 @@ namespace CChessEngine
             return string.Concat(node.CChessScore, "\n");
         }
 
-        public void PrintNodeTree(CChessBoardNode rootNode, List<CChessBoardNode> bestNodes)
+        public void PrintNodeTree(CChessBoardNode rootNode)
         {
             Console.WriteLine("可能局面:");
             Console.WriteLine(PrintChilds(rootNode));
             Console.WriteLine("-----");
+        }
+
+        public void PrintBestNodeTree(List<CChessBoardNode> bestNodes)
+        {
+            Console.WriteLine("最好棋");
+            CChessBoardNode node;
+            for (int i = 0; i < bestNodes.Count; i++)
+            {
+                StringBuilder sb = new StringBuilder();
+                node = bestNodes[i];
+                //sb.Append(" ");
+
+                while (node.Parent != null)
+                {
+                    foreach (CChessMoveData cmd in node.Parent.NextMoves)
+                        if (cmd.BoardNode.Board == node.Board)
+                            sb.Insert(0, $" {CChessSystem.PrintChineseMoveString(node.Parent.Board, cmd.Move)}");
+                    node = node.Parent;
+                }
+                sb.Insert(0, bestNodes[i].CChessScore);
+                Console.WriteLine(sb.ToString());
+            }
+            Console.WriteLine("----");
         }
 
         public List<CChessMoveData> BestFS(CChessBoardNode startNode, long nodeCount = 100, int width = 3)
@@ -155,7 +178,12 @@ namespace CChessEngine
                 bestNodes = GetBestNodes(startNode, width);
             }
 
-            PrintNodeTree(startNode, bestNodes);
+            //PrintNodeTree(startNode);
+            PrintBestNodeTree(bestNodes);
+            if (startNode.Board.IsBlackTurn)
+                Console.WriteLine($"結果：{CChessSystem.PrintChineseMoveString(startNode.Board, startNode.NextMoves.Min.Move)}");
+            else
+                Console.WriteLine($"結果：{CChessSystem.PrintChineseMoveString(startNode.Board, startNode.NextMoves.Max.Move)}");
 
             List<CChessMoveData> result = new List<CChessMoveData>();
             CChessBoardNode node = startNode;
@@ -186,7 +214,7 @@ namespace CChessEngine
                     foreach (CChessMoveData cmd in node.NextMoves)
                     {
                         CChessBoardNode cbn = UpdateNodeCChessScore(cmd.BoardNode);
-                        if (result.CChessScore > cbn.CChessScore)
+                        if (result.CChessScore < cbn.CChessScore)
                             result = cbn;
                     }
                 }
@@ -195,7 +223,7 @@ namespace CChessEngine
                     foreach (CChessMoveData cmd in node.NextMoves)
                     {
                         CChessBoardNode cbn = UpdateNodeCChessScore(cmd.BoardNode);
-                        if (result.CChessScore < cbn.CChessScore)
+                        if (result.CChessScore > cbn.CChessScore)
                             result = cbn;
                     }
                 }
@@ -323,14 +351,13 @@ namespace CChessEngine
                             CChessBoardNode.MaxScore;
                             continue;
                         default:
-                            if(MeasureScoreLevel == 1)
+                            if (MeasureScoreLevel == 1)
                                 nextBoardNode.CChessScore = CChessBoardScoreCalculator.MeasureScore(nextBoard);
-                            else if(MeasureScoreLevel == 2)
+                            else if (MeasureScoreLevel == 2)
                                 nextBoardNode.CChessScore = CChessBoardScoreCalculator.MeasureScorePrecision(nextBoard);
                             break;
                     }
                 }
-
 
                 if (BoardRecords.IndexOf(nextBoard) != -1)
                     continue;
@@ -374,6 +401,6 @@ namespace CChessEngine
             }
         }
 
-       
+
     }
 }

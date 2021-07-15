@@ -44,7 +44,7 @@ namespace DeepMind.ChineseChess
                                     if (j != 0 && !PieceLetters[player].Contains(ccb[i, j - 1]))
                                         result.Add(new CChessMove(ccb[i, j], i, j, i, j - 1));
                                 }
-                                if (player == 0 && j >= 4 || player == 1 && j <= 5)
+                                if (player == 0 && j >= 5 || player == 1 && j <= 4)
                                 {
                                     //已過河                                    
                                     if (i != 0 && !PieceLetters[player].Contains(ccb[i - 1, j]))
