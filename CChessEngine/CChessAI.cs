@@ -59,23 +59,12 @@ namespace CChessEngine
             if (bn.NextMoves.Count == 0)
                 return MoveStatus.Resign;
 
-            ExpandBoardNode(bn, depth);
-            if (depth == 0)
+            List<CChessMoveData> result = BestFS(bn, depth);
+            if (result.Count == 0)
                 return MoveStatus.NoBestMove;
-            
-            bestMoveData = bn.NextMoves[0];
-            if(bn.Board.IsBlackTurn)
-            {
-                for (int i = 1; i < bn.NextMoves.Count; i++)
-                    if (bn.NextMoves[i].BoardNode.Player1Score < bestMoveData.BoardNode.Player1Score)
-                        bestMoveData = bn.NextMoves[i];
-            }
-            else
-            {
-                for (int i = 1; i < bn.NextMoves.Count; i++)
-                    if (bn.NextMoves[i].BoardNode.Player1Score > bestMoveData.BoardNode.Player1Score)
-                        bestMoveData = bn.NextMoves[i];
-            }
+
+            bestMoveData = result[0];
+            estimateMoves = result;            
             return MoveStatus.BestMove;
         }
 
@@ -108,52 +97,82 @@ namespace CChessEngine
             UpdateBoardNode();
         }
 
-        public void ExpandBoardNode(CChessBoardNode node, int depth)
+        public List<CChessMoveData> BestFS(CChessBoardNode startNode, long nodeCount = 10000, int width = 3)
         {
-            depth--;
-            for(int i = 0; i < node.NextMoves.Count; i++)
-            {   
-                CChessBoard cb = CChessSystem.SimpleMove(node.Board, node.NextMoves[i].Move);
-                CChessBoardNode nextBoardNode = LoadOrCreateBoardNode(cb);
-                CChessStatus status = CChessSystem.CheckStatus(cb, node.NextMoves[i].Move, nextBoardNode.NextMoves.ToMoveList());
-                node.NextMoves[i].BoardNode = nextBoardNode;
-                switch (status)
-                {
-                    case CChessStatus.BlackWin:                    
-                        nextBoardNode.Player1Score = 0;
-                        continue;
-                    case CChessStatus.RedWin:
-                        nextBoardNode.Player1Score = CChessBoardNode.MaxScore;
-                        continue;
-                    case CChessStatus.BlackCheckmate:
-                        nextBoardNode.Player1Score = 0;
-                        continue;
-                    case CChessStatus.RedCheckmate:
-                        nextBoardNode.Player1Score = CChessBoardNode.MaxScore;
-                        continue;
-                    default:
-                        if (NoDiskMode && depth == 0)
-                            nextBoardNode.Player1Score = MeasureScore(cb);
-                        break;
-                }
-                
+            ExpandNode(startNode);
 
-                if (BoardRecords.IndexOf(cb) != -1)
+            //startNode.NextMoves[0].BoardNode.CChessScore
+
+            return null;
+            
+        }
+
+        //兩輪之後更新一次
+        //一層是一回合
+        public void ExpandNode(CChessBoardNode node, int depth = 2)
+        {
+            if (depth < 0)
+                throw new ArgumentException(nameof(depth));
+            depth--;
+
+            //Expand 1
+            foreach(CChessMoveData cmd in node.NextMoves)            
+            {
+                CChessBoard nextBoard = CChessSystem.SimpleMove(node.Board, cmd.Move);
+                CChessBoardNode nextBoardNode = LoadOrCreateBoardNode(nextBoard);
+                if(nextBoardNode.Status == CChessStatus.None)
+                {
+                    CChessStatus nextBoardStatus = CChessSystem.CheckStatus(nextBoard, cmd.Move, nextBoardNode.NextMoves.ToMoveList());                    
+                    switch (nextBoardStatus)
+                    {
+                        case CChessStatus.BlackWin:
+                            nextBoardNode.Player1WinScore = 
+                            nextBoardNode.CChessScore = 0;
+                            continue;
+                        case CChessStatus.RedWin:
+                            nextBoardNode.Player1WinScore =
+                            nextBoardNode.CChessScore =
+                            CChessBoardNode.MaxScore;
+                            continue;
+                        case CChessStatus.BlackCheckmate:
+                            nextBoardNode.Player1WinScore =
+                            nextBoardNode.CChessScore = 0;
+                            continue;
+                        case CChessStatus.RedCheckmate:
+                            nextBoardNode.Player1WinScore =
+                            nextBoardNode.CChessScore = 
+                            CChessBoardNode.MaxScore;
+                            continue;
+                        default:
+                            nextBoardNode.CChessScore = MeasureScore(nextBoard);
+                            break;
+                    }
+                }
+                cmd.BoardNode = nextBoardNode;
+
+                if (BoardRecords.IndexOf(nextBoard) != -1)
                     continue;
 
                 if (depth != 0)
-                    ExpandBoardNode(nextBoardNode, depth);
+                    ExpandNode(nextBoardNode, depth);
             }
 
             //Update Score
-            decimal totalScore = 0;
-            for(int i = 0; i < node.NextMoves.Count; i++)
-                totalScore += node.NextMoves[i].BoardNode.Player1Score;
-            node.Player1Score = (long)(totalScore / node.NextMoves.Count);
-
-            //if(!NoDiskMode)
-            //    UpdateBoardNode();
-        }
+            node.CChessScore = node.NextMoves.Min.BoardNode.CChessScore;
+            if (node.Board.IsBlackTurn)
+            {
+                foreach(CChessMoveData cmd in node.NextMoves)                
+                    if (cmd.BoardNode.CChessScore > node.CChessScore)
+                        node.CChessScore = cmd.BoardNode.CChessScore;
+            }
+            else
+            {
+                foreach (CChessMoveData cmd in node.NextMoves)
+                    if (cmd.BoardNode.CChessScore < node.CChessScore)
+                        node.CChessScore = cmd.BoardNode.CChessScore;
+            }
+            node.Searched = true;
+        }  
 
         public CChessBoardNode LoadOrCreateBoardNode(CChessBoard board)
         {
@@ -196,7 +215,7 @@ namespace CChessEngine
             //最少32 + 5 + 2 + 2 = 39分
             //最多32 + 10 + 2 + 2 = 44分
             //最小-44分
-            long result = 0;
+            long result = 44;
             for (int i = 0; i < 9; i++)
             {
                 for(int j = 0; j < 10; j++)
@@ -244,7 +263,7 @@ namespace CChessEngine
                     }
                 }
             }           
-            return (result + 44) * (CChessBoardNode.MaxScore / 90);
+            return result * (CChessBoardNode.MaxScore / 90);
         }
     }
 }

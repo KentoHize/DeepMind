@@ -33,7 +33,7 @@ namespace CChessEngine
                 //Console.WriteLine($"AI Move: {CChessSystem.PrintMoveString(oldBoard, bestMove.Move)}");
                 Console.WriteLine(ai.CurrentBoardNode.Board.PrintBoard());
                 Console.WriteLine($"AI: {CChessSystem.PrintChineseMoveString(oldBoard, bestMove.Move)}");
-                Console.WriteLine($"AI評分: {ai.CurrentBoardNode.Score}");
+                Console.WriteLine($"AI評分: {ai.CurrentBoardNode.Player1WinScore}");
                 //Console.WriteLine(oldBoard.PrintBoardString());
                 oldBoard = new CChessBoard(ai.CurrentBoardNode.Board);
                 GC.Collect();
