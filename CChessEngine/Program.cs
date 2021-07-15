@@ -21,7 +21,7 @@ namespace CChessEngine
             Console.ReadKey();
             for (int i = 0; i < 100; i++)
             {
-                ai.Move(2, out bestMove, out _);                
+                ai.Move(10, out bestMove, out _);                
                 //Console.WriteLine($"AI Move: {CChessSystem.PrintMoveString(oldBoard, bestMove.Move)}");
                 Console.WriteLine(ai.CurrentBoardNode.Board.PrintBoard());
                 Console.WriteLine($"AI: {CChessSystem.PrintChineseMoveString(oldBoard, bestMove.Move)}");

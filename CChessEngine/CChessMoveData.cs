@@ -37,15 +37,15 @@ namespace CChessEngine
             if (y == null)
                 return 1;
             else if (x == null)
-                return -1;
+                return -1;            
             else if (x.BoardNode == null && y.BoardNode == null)
-                return 0;
+                return x.Move.CompareTo(y.Move);
             else if (x.BoardNode == null)
                 return y.BoardNode.CChessScore > CChessBoardNode.DefaultScore ? -1 : 1;
             else if (y.BoardNode == null)
                 return x.BoardNode.CChessScore > CChessBoardNode.DefaultScore ? 1 : -1;
             else if (x.BoardNode.CChessScore == y.BoardNode.CChessScore)
-                return 0;
+                return x.Move.CompareTo(y.Move);
             else
                 return x.BoardNode.CChessScore > y.BoardNode.CChessScore ? 1 : -1;
         }

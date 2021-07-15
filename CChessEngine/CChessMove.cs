@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace CChessEngine
 {
-    public struct CChessMove
+    public struct CChessMove : IComparer<CChessMove>, IComparable<CChessMove>
     {
         public byte X1 { get; set; }
         public byte Y1 { get; set; }
@@ -48,5 +49,17 @@ namespace CChessEngine
 
         public override int GetHashCode()
             => X1.GetHashCode() ^ X2.GetHashCode() ^ Y1.GetHashCode() ^ Y2.GetHashCode();
+
+        public int CompareTo(CChessMove other)
+            => Compare(this, other);
+
+        public int Compare(CChessMove x, CChessMove y)
+        {
+            if (x.Equals(y))
+                return 0;
+            else if (x.X1 > y.X1 || x.Y1 > y.Y1 || x.X2 > y.X2 || x.Y2 > y.Y2)
+                return 1;
+            return -1;
+        }
     }
 }
