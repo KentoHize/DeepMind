@@ -181,20 +181,66 @@ namespace CChessEngine
             }       
         }
 
-        //public CChessBoardNode GetBestNodes(CChessBoardNode node, int count)
-        //{
-        //    //對所有尾端抓最好的
-        //    //1.計算法
-        //    if(node.Searched)
-        //    {   
-        //        foreach (CChessMoveData cmd in node.NextMoves)
-        //        {
-        //            GetBestNodes(cmd.BoardNode, count);
-        //        }   
-        //    }
-        //    else                
-        //        return node;
-        //}
+        public List<CChessBoardNode> GetBestNodes(CChessBoardNode node, int count = 3)
+        {
+            //挑3個最好的路
+            //往下再算3個，從這9個節點中在挑3個
+            //再往下算3個，以此類推
+            
+            List<CChessBoardNode> bestNodes = new List<CChessBoardNode>();
+            List<CChessBoardNode> result = new List<CChessBoardNode>();            
+            if (node.Searched)
+            {
+                int i = 0;
+                if (node.Board.IsBlackTurn)
+                {
+                    foreach (CChessMoveData cmd in node.NextMoves)
+                    {
+                        i++;
+                        bestNodes.Add(cmd.BoardNode);
+                        if (i == count)
+                            break;
+                    }
+                }
+                else
+                {
+                    foreach (CChessMoveData cmd in node.NextMoves.Reverse())
+                    {
+                        i++;
+                        bestNodes.Add(cmd.BoardNode);
+                        if (i == count)
+                            break;
+                    }
+                }
+
+                for(i = 0; i < bestNodes.Count; i++)
+                    result.AddRange(GetBestNodes(bestNodes[i], count));
+            }
+
+            if(node.Board.IsBlackTurn)
+            {
+                result.Sort((x, y) => {
+                    if (x.CChessScore == y.CChessScore)
+                        return 0;
+                    else if (x.CChessScore > y.CChessScore)
+                        return -1;
+                    return 1;
+                });
+            }
+            else
+            {
+                result.Sort((x, y) => {
+                    if (x.CChessScore == y.CChessScore)
+                        return 0;
+                    else if (x.CChessScore > y.CChessScore)
+                        return 1;
+                    return -1;
+                });
+            }
+
+            result.RemoveRange(3, result.Count - 3);
+            return result;
+        }
 
         //兩輪之後更新一次
         //一層是一回合
