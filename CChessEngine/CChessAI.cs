@@ -49,7 +49,7 @@ namespace CChessEngine
             BoardRecords = new List<CChessBoard>();
             NoDiskMode = noDiskMode;
             NoBoardRecordMode = noBoardRecordMode;
-            StartBoardNode = LoadOrCreateBoardNode(startBoard);
+            StartBoardNode = LoadOrCreateBoardNode(startBoard, null);
             CurrentBoardNode = StartBoardNode;
         }
 
@@ -76,7 +76,7 @@ namespace CChessEngine
             if (BoardNodes.ContainsKey(board))
                 bn = BoardNodes[board];
             else
-                bn = LoadOrCreateBoardNode(board);
+                bn = LoadOrCreateBoardNode(board, null);
             return Go(bn, depth, out bestMoveData, out estimateMoves);
         }
 
@@ -99,14 +99,48 @@ namespace CChessEngine
             UpdateBoardNode();
         }
 
+        public string PrintChilds(CChessBoardNode node, string startString = "")
+        {   
+            if (node.Searched)
+            {
+                StringBuilder result = new StringBuilder();
+                foreach (CChessMoveData cmd in node.NextMoves)
+                {   
+                    string buffer = string.Concat(startString, CChessSystem.PrintChineseMoveString(node.Board, cmd.Move), " ");
+                    result.Append(buffer);               
+                    result.Append(PrintChilds(cmd.BoardNode, buffer));
+                }
+                return result.ToString();
+            }
+            return string.Concat(node.CChessScore, "\n");
+        }
+
+        public void PrintNodeTree(CChessBoardNode rootNode, List<CChessBoardNode> bestNodes)
+        {
+            Console.WriteLine("可能局面:");
+            Console.WriteLine(PrintChilds(rootNode));
+            Console.WriteLine("-----");            
+        }
+
         public List<CChessMoveData> BestFS(CChessBoardNode startNode, long nodeCount = 100, int width = 3)
         {
             if (width < 1)
                 throw new ArgumentOutOfRangeException(nameof(width));
 
             ExpandNode(startNode);
+            //foreach (CChessMoveData cmd in startNode.NextMoves)
+            //{
+            //    Console.WriteLine(string.Concat(CChessSystem.PrintChineseMoveString(startNode.Board, cmd.Move, true),
+            //        ":", cmd.BoardNode.CChessScore));
+            //}
+            //Console.WriteLine("-----");
             UpdateNodeCChessScore(startNode);
-            List<CChessBoardNode> bestNodes = GetBestNodes(startNode, width);
+            //foreach(CChessMoveData cmd in startNode.NextMoves)
+            //{
+            //    Console.WriteLine(string.Concat(CChessSystem.PrintChineseMoveString(startNode.Board, cmd.Move, true),
+            //        ":", cmd.BoardNode.CChessScore));
+            //}
+            List<CChessBoardNode> bestNodes = GetBestNodes(startNode, width);            
             while (nodeCount > 0)
             {
                 for (int i = 0; i < bestNodes.Count; i++)
@@ -118,10 +152,11 @@ namespace CChessEngine
                 }
                 bestNodes = GetBestNodes(startNode, width);
             }
+          
+            PrintNodeTree(startNode, bestNodes);
 
             List<CChessMoveData> result = new List<CChessMoveData>();
             CChessBoardNode node = startNode;
-
             while (node.Searched)
             {
                 if (node.Board.IsBlackTurn)
@@ -228,8 +263,8 @@ namespace CChessEngine
                     if (x.CChessScore == y.CChessScore)
                         return 0;
                     else if (x.CChessScore > y.CChessScore)
-                        return -1;
-                    return 1;
+                        return 1;
+                    return -1;
                 });
             }
             else
@@ -238,7 +273,7 @@ namespace CChessEngine
                 {
                     if (x.CChessScore == y.CChessScore)
                         return 0;
-                    else if (x.CChessScore > y.CChessScore)
+                    else if (x.CChessScore < y.CChessScore)
                         return 1;
                     return -1;
                 });
@@ -260,7 +295,7 @@ namespace CChessEngine
             foreach (CChessMoveData cmd in node.NextMoves)
             {
                 CChessBoard nextBoard = CChessSystem.SimpleMove(node.Board, cmd.Move);
-                CChessBoardNode nextBoardNode = LoadOrCreateBoardNode(nextBoard);
+                CChessBoardNode nextBoardNode = LoadOrCreateBoardNode(nextBoard, node);
                 cmd.BoardNode = nextBoardNode;
                 if (nextBoardNode.Status == CChessStatus.None)
                 {
@@ -290,7 +325,7 @@ namespace CChessEngine
                             break;
                     }
                 }
-                
+
 
                 if (BoardRecords.IndexOf(nextBoard) != -1)
                     continue;
@@ -301,7 +336,7 @@ namespace CChessEngine
             node.Searched = true;
         }
 
-        public CChessBoardNode LoadOrCreateBoardNode(CChessBoard board)
+        public CChessBoardNode LoadOrCreateBoardNode(CChessBoard board, CChessBoardNode parent = null)
         {
             CChessBoardNode cbn;
             if (!NoDiskMode)
@@ -311,12 +346,12 @@ namespace CChessEngine
                     cbn = Tina.LoadJsonFile<CChessBoardNode>(filePath);
                 else
                 {
-                    cbn = new CChessBoardNode(board);
+                    cbn = new CChessBoardNode(board, parent);
                     Tina.SaveJsonFile(filePath, cbn, true);
                 }
             }
             else
-                cbn = new CChessBoardNode(board);
+                cbn = new CChessBoardNode(board, parent);
 
             if (!NoBoardRecordMode && !BoardNodes.ContainsKey(board))
                 BoardNodes.Add(board, cbn);
