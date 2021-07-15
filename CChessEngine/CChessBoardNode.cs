@@ -13,7 +13,7 @@ namespace CChessEngine
         public long Player1WinCount { get; set; }
         public long Player2WinCount { get; set; }
         public long DrawCount { get; set; }
-        public long Score { get; set; }
+        public long Player1Score { get; set; }
         public bool DrawNode { get; set; }
         public bool CompleteNode { get; set; }
 
@@ -24,7 +24,7 @@ namespace CChessEngine
         public CChessBoardNode(CChessBoard board, List<CChessMoveData> nextMoves = null)
         {
             Board = new CChessBoard(board);
-            Score = DefaultScore;
+            Player1Score = DefaultScore;
             if (board == null)
                 return;
             if (nextMoves == null)
@@ -40,7 +40,7 @@ namespace CChessEngine
             Player2WinCount = node.Player2WinCount;
             DrawCount = node.DrawCount;
             DrawNode = node.DrawNode;
-            Score = node.Score;
+            Player1Score = node.Player1Score;
             CompleteNode = node.CompleteNode;            
         }
 

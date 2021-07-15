@@ -21,7 +21,7 @@ namespace CChessEngine
             //    Console.WriteLine(CChessSystem.PrintChineseMoveString(board, a[i], true));
             //    //Console.WriteLine(CChessSystem.PrintMoveString(board, a[i]));
             //}
-            CChessAI ai = new CChessAI(null, true);
+            CChessAI ai = new CChessAI(null, true, true);
             CChessMoveData bestMove;
             CChessBoard oldBoard = new CChessBoard(ai.CurrentBoardNode.Board);
             Console.WriteLine(oldBoard.PrintBoard());            
@@ -29,17 +29,22 @@ namespace CChessEngine
             Console.ReadKey();
             for (int i = 0; i < 100; i++)
             {
-                ai.Move(3, out bestMove, out _);                
-                Console.WriteLine($"AI 移動: {CChessSystem.PrintChineseMoveString(oldBoard, bestMove.Move)}");
-                Console.WriteLine($"AI Move: {CChessSystem.PrintMoveString(oldBoard, bestMove.Move)}");
+                ai.Move(2, out bestMove, out _);                
+                //Console.WriteLine($"AI Move: {CChessSystem.PrintMoveString(oldBoard, bestMove.Move)}");
+                Console.WriteLine(ai.CurrentBoardNode.Board.PrintBoard());
+                Console.WriteLine($"AI: {CChessSystem.PrintChineseMoveString(oldBoard, bestMove.Move)}");
+                Console.WriteLine($"AI評分: {ai.CurrentBoardNode.Score}");
+                //Console.WriteLine(oldBoard.PrintBoardString());
                 oldBoard = new CChessBoard(ai.CurrentBoardNode.Board);
-                Console.WriteLine(oldBoard.PrintBoard());
-                Console.WriteLine(oldBoard.PrintBoardString());
+                GC.Collect();
                 Console.ReadKey();
             }
+            
+
             ai.RecordGame();
             Console.WriteLine("End");
             Console.ReadKey();
+            
         }
     }
 }

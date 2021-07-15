@@ -227,11 +227,12 @@ namespace CChessEngine
                     throw new ArgumentOutOfRangeException(nameof(move));
             }
 
-            char piece = board[move.X1, move.Y1];
-            board[move.X2, move.Y2] = piece;
-            board[move.X1, move.Y1] = ' ';
-            board.IsBlackTurn = !board.IsBlackTurn;            
-            return board;            
+            CChessBoard result = (CChessBoard)board.Clone();
+            char piece = result[move.X1, move.Y1];
+            result[move.X2, move.Y2] = piece;
+            result[move.X1, move.Y1] = ' ';
+            result.IsBlackTurn = !result.IsBlackTurn;            
+            return result;            
         }
 
         public static CChessStatus CheckStatus(CChessBoard board, CChessMove move, List<CChessMove> legalMoves = null)
