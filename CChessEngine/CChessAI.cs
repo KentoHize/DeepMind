@@ -29,7 +29,8 @@ namespace CChessEngine
         public CChessBoardNode StartBoardNode { get; set; }
         public CChessBoardNode CurrentBoardNode { get; set; }
         public SortedDictionary<CChessBoard, CChessBoardNode> BoardNodes { get; set; }
-        public SortedList<long, CChessBoardNode> BestBoardNodes { get; set; }
+        public SortedList<long, CChessBoardNode> BestNodes { get; set; }
+        //public int BestdNodesAmount { get; set; }
         public List<CChessMove> MoveRecords { get; set; }
         public List<CChessBoard> BoardRecords { get; set; }
         public bool NoDiskMode { get; set; }
@@ -47,7 +48,7 @@ namespace CChessEngine
             if (startBoard == null)
                 startBoard = CChessBoard.StartingBoard;
             BoardNodes = new SortedDictionary<CChessBoard, CChessBoardNode>();
-            BestBoardNodes = new SortedList<long, CChessBoardNode>();
+            BestNodes = new SortedList<long, CChessBoardNode>();
             MoveRecords = new List<CChessMove>();
             BoardRecords = new List<CChessBoard>();
             NoDiskMode = noDiskMode;
@@ -198,8 +199,7 @@ namespace CChessEngine
                 bestNodes = GetBestNodes(startNode, width);
             }
 
-            //bestNodes = GetBestNodes(startNode, width, startNode.Board.IsBlackTurn);
-
+            //bestNodes = GetBestNodes(startNode, width);
             PrintNodeTree(startNode, true);
             PrintBestNodeTree(bestNodes);
             //if (startNode.Board.IsBlackTurn)
@@ -236,7 +236,7 @@ namespace CChessEngine
                     node.NextMoves.Sort();
                 }
                 else
-                {
+                {   
                     if (node.Board.IsBlackTurn && node.CChessScore > node.NextMoves[0].BoardNode.CChessScore)
                         node.CChessScore = node.NextMoves[0].BoardNode.CChessScore;
                     else if (!node.Board.IsBlackTurn && node.CChessScore < node.NextMoves[node.NextMoves.Count - 1].BoardNode.CChessScore)
@@ -273,6 +273,7 @@ namespace CChessEngine
             result.Add(startNode);
             result.Add(null);
             int skipIndex = 0;
+            bool isBlackTurn = startNode.Board.IsBlackTurn;
             //探索開始
             while (true)
             {
@@ -283,9 +284,10 @@ namespace CChessEngine
                         break;
                     result.Sort();
                     skipIndex = 0;
-                    if(result.Count > 3)
+                    if(result.Count > count)
                     {
-                        if (result[result.Count - 1].Board.IsBlackTurn)
+                        //取得對自己最有利的點，驗算一下是否有這麼好
+                        if (startNode.Board.IsBlackTurn)
                             result.RemoveRange(count, result.Count - count);
                         else
                             result.RemoveRange(0, result.Count - count);
@@ -293,6 +295,7 @@ namespace CChessEngine
 
                     if (result.TrueForAll(m => !m.Searched))
                         break;
+                    isBlackTurn = !isBlackTurn;
                     result.Add(null);
                 }
                 else if (result[skipIndex].Searched)
