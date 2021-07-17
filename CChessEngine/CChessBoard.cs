@@ -48,7 +48,7 @@ namespace CChessEngine
     //BoardString 從上往下讀取
     //_Data 從下往上存
     //Indexer X Y易位
-    public class CChessBoard : IComparable<CChessBoard>, ICloneable
+    public class CChessBoard : IComparable<CChessBoard>, IComparer<CChessBoard>, ICloneable
     {
         private const string ExceptionString = "\"{0}\" is not a valid Chinese Chess board data string.";
         public const string ChessLetters = "KABRNCPkabrncp ";        
@@ -231,32 +231,38 @@ namespace CChessEngine
 
         public override string ToString()
             => PrintBoardString(true);
+        
+        public object Clone()
+            => new CChessBoard(this);
 
-        public int CompareTo([AllowNull] CChessBoard other)
+        public int Compare([AllowNull] CChessBoard x, [AllowNull] CChessBoard y)
         {
-            if (other == null)
+            if (y == null)
                 return 1;
+            else if (x == null)
+                return -1;
 
             for (int i = 0; i < 9; i++)
             {
                 for (int j = 0; j < 10; j++)
                 {
-                    if (this[i, j] > other[i, j])
+                    if (x[i, j] > y[i, j])
                         return 1;
-                    else if (this[i, j] < other[i, j])
+                    else if (x[i, j] < y[i, j])
                         return -1;
                 }
             }
 
-            if (IsBlackTurn && !other.IsBlackTurn)
+            if (x.IsBlackTurn && !y.IsBlackTurn)
                 return 1;
-            else if (!IsBlackTurn && other.IsBlackTurn)
+            else if (!x.IsBlackTurn && y.IsBlackTurn)
                 return -1;
 
             return 0;
         }
 
-        public object Clone()
-            => new CChessBoard(this);
+        public int CompareTo([AllowNull] CChessBoard other)
+            => Compare(this, other);
+
     }
 }
