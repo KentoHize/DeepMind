@@ -105,14 +105,12 @@ namespace CChessEngine
         {
             if (result == null)
                 result = new StringBuilder();
-
-            
             if (node.Searched)
-            {
-                for (int i = 0; i < depth; i++)
-                    result.Append(" -> ");
+            {   
                 foreach (CChessMoveData cmd in node.NextMoves)
                 {
+                    for (int i = 0; i < depth; i++)
+                        result.Append(" -> ");
                     result.Append(CChessSystem.PrintChineseMoveString(node.Board, cmd.Move));
                     result.Append(" ");
                     if (withScore)
@@ -120,7 +118,8 @@ namespace CChessEngine
                         result.Append(cmd.BoardNode.CChessScore);
                         result.Append(" ");
                     }
-                    result.Append(PrintChilds(cmd.BoardNode, result, withScore, ++depth));
+                    result.AppendLine();
+                    PrintChilds(cmd.BoardNode, result, withScore, depth + 1);
                 }
                 if (depth == 0)
                     return result.ToString();
@@ -129,9 +128,7 @@ namespace CChessEngine
             else
             {
                 if (!withScore)
-                    result.AppendLine(node.CChessScore.ToString());
-                else
-                    result.AppendLine();
+                    result.Append(node.CChessScore.ToString());
                 return null;
             }
         }
@@ -201,9 +198,9 @@ namespace CChessEngine
             //PrintNodeTree(startNode);
             //PrintBestNodeTree(bestNodes);
             if (startNode.Board.IsBlackTurn)
-                Console.WriteLine($"結果：{CChessSystem.PrintChineseMoveString(startNode.Board, startNode.NextMoves.Min.Move)}");
+                Console.WriteLine($"結果：{CChessSystem.PrintChineseMoveString(startNode.Board, startNode.NextMoves[0].Move)}");
             else
-                Console.WriteLine($"結果：{CChessSystem.PrintChineseMoveString(startNode.Board, startNode.NextMoves.Max.Move)}");
+                Console.WriteLine($"結果：{CChessSystem.PrintChineseMoveString(startNode.Board, startNode.NextMoves[startNode.NextMoves.Count - 1].Move)}");
 
             List<CChessMoveData> result = new List<CChessMoveData>();
             CChessBoardNode node = startNode;
@@ -211,13 +208,13 @@ namespace CChessEngine
             {
                 if (node.Board.IsBlackTurn)
                 {
-                    result.Add(node.NextMoves.Min);
-                    node = node.NextMoves.Min.BoardNode;
+                    result.Add(node.NextMoves[0]);
+                    node = node.NextMoves[0].BoardNode;
                 }
                 else
                 {
-                    result.Add(node.NextMoves.Max);
-                    node = node.NextMoves.Max.BoardNode;
+                    result.Add(node.NextMoves[node.NextMoves.Count - 1]);
+                    node = node.NextMoves[node.NextMoves.Count - 1].BoardNode;
                 }
             }
             return result;
@@ -227,8 +224,8 @@ namespace CChessEngine
         {
             if (node.Searched)
             {
-                CChessBoardNode result;
-                result = node.NextMoves.Min.BoardNode;
+                CChessBoardNode result;                
+                result = node.NextMoves[0].BoardNode;
                 if (node.Board.IsBlackTurn)
                 {
                     foreach (CChessMoveData cmd in node.NextMoves)
@@ -290,12 +287,16 @@ namespace CChessEngine
             }
             else
             {
-                foreach (CChessMoveData cmd in node.NextMoves.Reverse())
+                node.NextMoves.Reverse();
+                foreach (CChessMoveData cmd in node.NextMoves)
                 {
                     i++;
                     bestNodes.Add(cmd.BoardNode);
                     if (i == count)
+                    {
+                        node.NextMoves.Reverse();
                         break;
+                    }                        
                 }
             }
 
@@ -385,6 +386,7 @@ namespace CChessEngine
                 if (depth != 0)
                     ExpandNode(nextBoardNode, depth);
             }
+            node.NextMoves.Sort();
             node.Searched = true;
         }
 

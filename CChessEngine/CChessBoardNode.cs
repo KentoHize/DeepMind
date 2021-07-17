@@ -11,7 +11,7 @@ namespace CChessEngine
         public const long MaxScore = 100000000000000000;
         public CChessBoard Board { get; set; }
         public CChessStatus Status { get; set; }
-        public SortedSet<CChessMoveData> NextMoves { get; set; }
+        public List<CChessMoveData> NextMoves { get; set; }
         
         [JsonIgnore(Condition = JsonIgnoreCondition.Always)]
         public CChessBoardNode Parent { get; set; }
@@ -28,7 +28,7 @@ namespace CChessEngine
             : this(null, null, null)
         { }
 
-        public CChessBoardNode(CChessBoard board, CChessBoardNode parent = null, SortedSet<CChessMoveData> nextMoves = null)
+        public CChessBoardNode(CChessBoard board, CChessBoardNode parent = null, List<CChessMoveData> nextMoves = null)
         {
             if (board == null)
                 return;
@@ -40,13 +40,13 @@ namespace CChessEngine
             Parent = parent;            
             if (nextMoves == null)
                 nextMoves = CChessSystem.GetLegalMoves(board).ToMoveDataList();
-            NextMoves = new SortedSet<CChessMoveData>(nextMoves);
+            NextMoves = new List<CChessMoveData>(nextMoves);
         }
 
         public CChessBoardNode(CChessBoardNode node)
         {           
             Board = new CChessBoard(node.Board);
-            NextMoves = new SortedSet<CChessMoveData>(node.NextMoves);
+            NextMoves = new List<CChessMoveData>(node.NextMoves);
             Player1WinCount = node.Player1WinCount;
             Player2WinCount = node.Player2WinCount;
             DrawCount = node.DrawCount;

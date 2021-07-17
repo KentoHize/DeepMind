@@ -56,17 +56,17 @@ namespace CChessEngine
 
     public static partial class Extension
     {
-        public static SortedSet<CChessMoveData> ToMoveDataList(this List<CChessMove> movelist)
+        public static List<CChessMoveData> ToMoveDataList(this List<CChessMove> movelist)
         {
             if (movelist == null)
                 return null;
-            SortedSet<CChessMoveData> result = new SortedSet<CChessMoveData>();
+            List<CChessMoveData> result = new List<CChessMoveData>();
             for (int i = 0; i < movelist.Count; i++)
                 result.Add(new CChessMoveData(movelist[i]));
             return result;
         }
 
-        public static List<CChessMove> ToMoveList(this SortedSet<CChessMoveData> moveDataList)
+        public static List<CChessMove> ToMoveList(this List<CChessMoveData> moveDataList)
         {
             if (moveDataList == null)
                 return null;
