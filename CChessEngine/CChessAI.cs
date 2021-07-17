@@ -268,43 +268,45 @@ namespace CChessEngine
             if (!startNode.Searched)
                 throw new ArgumentException(nameof(startNode));
 
-            List<CChessBoardNode> cbnList = new List<CChessBoardNode>();
-            List<CChessBoardNode> result = new List<CChessBoardNode>();
+            List<CChessBoardNode> result = new List<CChessBoardNode>();            
             //初始化
-            cbnList.Add(startNode);
-
-            //地回增加
-            while(true)
+            result.Add(startNode);
+            result.Add(null);
+            int skipIndex = 0;
+            //探索開始
+            while (true)
             {
-                if (cbnList[0].Searched)
+                if (result[skipIndex] == null)
                 {
-                    if (cbnList[0].Board.IsBlackTurn)
+                    result.RemoveAt(skipIndex);
+                    if (result.Count == 0)
+                        break;
+                    result.Sort();
+                    skipIndex = 0;
+                    if(result.Count > 3)
                     {
-                        for (int i = 0; i < count && i < cbnList[0].NextMoves.Count; i++)
-                        {
-                            cbnList.Add(cbnList[0].NextMoves[i].BoardNode);
-                        }
-                    }
+                        if (result[result.Count - 1].Board.IsBlackTurn)
+                            result.RemoveRange(count, result.Count - count);
+                        else
+                            result.RemoveRange(0, result.Count - count);
+                    }   
+
+                    if (result.TrueForAll(m => !m.Searched))
+                        break;
+                    result.Add(null);
+                }
+                else if (result[skipIndex].Searched)
+                {
+                    if (result[skipIndex].Board.IsBlackTurn)
+                        for (int i = 0; i < count && i < result[skipIndex].NextMoves.Count; i++)
+                            result.Add(result[skipIndex].NextMoves[i].BoardNode);
                     else
-                    {
-                        for (int i = cbnList[0].NextMoves.Count - 1; i >= 0 && i >= cbnList[0].NextMoves.Count - 3; i--)
-                        {
-                            cbnList.Add(cbnList[0].NextMoves[i].BoardNode);
-                        }
-                    }
+                        for (int i = result[skipIndex].NextMoves.Count - 1; i >= 0 && i >= result[skipIndex].NextMoves.Count - 3; i--)
+                            result.Add(result[skipIndex].NextMoves[i].BoardNode);
+                    result.RemoveAt(skipIndex);
                 }
                 else
-                    result.Add(cbnList[0]);
-                cbnList.Remove(cbnList[0]);
-                
-                if(result.Count >= 100 || cbnList.Count == 0)
-                {
-                    result.Sort();
-                    //先假設永遠取紅                    
-                     result.RemoveRange(0, result.Count - 3);
-                    if (cbnList.Count == 0)
-                        break;
-                }
+                    skipIndex++;
             }
             return result;
         }
