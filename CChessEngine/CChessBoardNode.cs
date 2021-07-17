@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json.Serialization;
 
 namespace CChessEngine
 {
-    public class CChessBoardNode : ICloneable
+    public class CChessBoardNode : ICloneable, IComparer<CChessBoardNode>, IComparable<CChessBoardNode>
     {
         public const long DefaultScore = 50000000000000000;
         public const long MaxScore = 100000000000000000;
@@ -62,10 +63,14 @@ namespace CChessEngine
         public object Clone()
             => new CChessBoardNode(this);
 
-        //public CChessBoardNode(CChessBoard board, List<C>)
+        public int Compare([AllowNull] CChessBoardNode x, [AllowNull] CChessBoardNode y)
+        {   
+            if (x.CChessScore != y.CChessScore)
+                return x.CChessScore.CompareTo(y.CChessScore);
+            return x.Player1WinScore.CompareTo(y.Player1WinScore);
+        }
 
-        //Expand
-        //Save
-        //Load
+        public int CompareTo([AllowNull] CChessBoardNode other)
+            => Compare(this, other);
     }
 }

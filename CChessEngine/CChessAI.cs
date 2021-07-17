@@ -25,6 +25,7 @@ namespace CChessEngine
     {
         public string BoardNodeDataPath { get; set; }
         public string MoveRecordDataPath { get; set; }
+        public string LogDataPath { get; set; }
         public CChessBoardNode StartBoardNode { get; set; }
         public CChessBoardNode CurrentBoardNode { get; set; }
         public SortedDictionary<CChessBoard, CChessBoardNode> BoardNodes { get; set; }
@@ -42,6 +43,7 @@ namespace CChessEngine
         {
             BoardNodeDataPath = @"C:\Programs\WPF\DeepMind\CChessEngine\Data\Board";
             MoveRecordDataPath = @"C:\Programs\WPF\DeepMind\CChessEngine\Data\Move";
+            LogDataPath = @"C:\Programs\WPF\DeepMind\CChessEngine\Data\Log";
             if (startBoard == null)
                 startBoard = CChessBoard.StartingBoard;
             BoardNodes = new SortedDictionary<CChessBoard, CChessBoardNode>();
@@ -106,7 +108,7 @@ namespace CChessEngine
             if (result == null)
                 result = new StringBuilder();
             if (node.Searched)
-            {   
+            {
                 foreach (CChessMoveData cmd in node.NextMoves)
                 {
                     for (int i = 0; i < depth; i++)
@@ -118,26 +120,37 @@ namespace CChessEngine
                         result.Append(cmd.BoardNode.CChessScore);
                         result.Append(" ");
                     }
-                    result.AppendLine();
+                    if (cmd.BoardNode.Searched)
+                        result.AppendLine();
                     PrintChilds(cmd.BoardNode, result, withScore, depth + 1);
                 }
                 if (depth == 0)
                     return result.ToString();
+
                 return null;
             }
             else
             {
                 if (!withScore)
-                    result.Append(node.CChessScore.ToString());
+                    result.AppendLine(node.CChessScore.ToString());
+                else
+                    result.AppendLine();
+
                 return null;
             }
         }
 
-        public void PrintNodeTree(CChessBoardNode rootNode, bool withScore = false)
+        public void PrintNodeTree(CChessBoardNode rootNode, bool withScore = false, bool toConsole = false)
         {
-            Console.WriteLine("可能局面:");
-            Console.WriteLine(PrintChilds(rootNode, null, withScore));
-            Console.WriteLine("-----");
+            StringBuilder result = new StringBuilder();
+            result.AppendLine("可能局面：");
+            result.Append(rootNode.Board.PrintBoard());
+            result.Append(PrintChilds(rootNode, null, withScore));
+            result.Append("-------");
+            if (toConsole)
+                Console.WriteLine(result);
+            else
+                Tina.SaveTextFile(LogDataPath, $"{rootNode.Board.PrintBoardString(true)}.txt", result.ToString());
         }
 
         public void PrintBestNodeTree(List<CChessBoardNode> bestNodes)
@@ -169,19 +182,7 @@ namespace CChessEngine
                 throw new ArgumentOutOfRangeException(nameof(width));
 
             ExpandNode(startNode);
-            //foreach (CChessMoveData cmd in startNode.NextMoves)
-            //{
-            //    Console.WriteLine(string.Concat(CChessSystem.PrintChineseMoveString(startNode.Board, cmd.Move, true),
-            //        ":", cmd.BoardNode.CChessScore));
-            //}
-            //Console.WriteLine("-----");
             UpdateNodeCChessScore(startNode);
-            PrintNodeTree(startNode, true);
-            //foreach(CChessMoveData cmd in startNode.NextMoves)
-            //{
-            //    Console.WriteLine(string.Concat(CChessSystem.PrintChineseMoveString(startNode.Board, cmd.Move, true),
-            //        ":", cmd.BoardNode.CChessScore));
-            //}
             List<CChessBoardNode> bestNodes = GetBestNodes(startNode, width);
             while (nodeCount > 0)
             {
@@ -195,8 +196,8 @@ namespace CChessEngine
                 bestNodes = GetBestNodes(startNode, width);
             }
 
-            //PrintNodeTree(startNode);
-            //PrintBestNodeTree(bestNodes);
+            //PrintNodeTree(startNode, true);
+            PrintBestNodeTree(bestNodes);
             if (startNode.Board.IsBlackTurn)
                 Console.WriteLine($"結果：{CChessSystem.PrintChineseMoveString(startNode.Board, startNode.NextMoves[0].Move)}");
             else
@@ -220,40 +221,31 @@ namespace CChessEngine
             return result;
         }
 
-        public CChessBoardNode UpdateNodeCChessScore(CChessBoardNode node)
+        public void UpdateNodeCChessScore(CChessBoardNode node)
         {
             if (node.Searched)
             {
-                CChessBoardNode result;                
-                result = node.NextMoves[0].BoardNode;
-                if (node.Board.IsBlackTurn)
+                if (node.NextMoves[0].BoardNode.Searched)
                 {
                     foreach (CChessMoveData cmd in node.NextMoves)
-                    {
-                        CChessBoardNode cbn = UpdateNodeCChessScore(cmd.BoardNode);
-                        if (result.CChessScore < cbn.CChessScore)
-                            result = cbn;
-                    }
+                        UpdateNodeCChessScore(node.NextMoves[0].BoardNode);
+                    node.NextMoves.Sort();
                 }
                 else
                 {
-                    foreach (CChessMoveData cmd in node.NextMoves)
-                    {
-                        CChessBoardNode cbn = UpdateNodeCChessScore(cmd.BoardNode);
-                        if (result.CChessScore > cbn.CChessScore)
-                            result = cbn;
-                    }
+                    if (node.Board.IsBlackTurn && node.CChessScore > node.NextMoves[0].BoardNode.CChessScore)
+                        node.CChessScore = node.NextMoves[0].BoardNode.CChessScore;
+                    else if (!node.Board.IsBlackTurn && node.CChessScore < node.NextMoves[node.NextMoves.Count - 1].BoardNode.CChessScore)
+                        node.CChessScore = node.NextMoves[node.NextMoves.Count - 1].BoardNode.CChessScore;
                 }
-                return result;
             }
-            else
-                return node;
         }
 
         public void UpdateParentNodeCChessScore(CChessBoardNode node)
         {
             if (node.Parent != null)
             {
+                node.Parent.NextMoves.Sort();
                 if ((node.Board.IsBlackTurn && node.Parent.CChessScore < node.CChessScore) ||
                     (!node.Board.IsBlackTurn && node.Parent.CChessScore > node.CChessScore))
                 {
@@ -271,66 +263,25 @@ namespace CChessEngine
             if (!node.Searched)
                 throw new ArgumentException(nameof(node));
 
-            List<CChessBoardNode> bestNodes = new List<CChessBoardNode>();
             List<CChessBoardNode> result = new List<CChessBoardNode>();
-
-            int i = 0;
             if (node.Board.IsBlackTurn)
-            {
-                foreach (CChessMoveData cmd in node.NextMoves)
-                {
-                    i++;
-                    bestNodes.Add(cmd.BoardNode);
-                    if (i == count)
-                        break;
-                }
-            }
+                for (int i = 0; i < count || i < node.NextMoves.Count; i++)
+                    if (node.NextMoves[i].BoardNode.Searched)
+                        result.AddRange(GetBestNodes(node.NextMoves[i].BoardNode, count));
+                    else
+                        result.Add(node.NextMoves[i].BoardNode);
             else
-            {
-                node.NextMoves.Reverse();
-                foreach (CChessMoveData cmd in node.NextMoves)
-                {
-                    i++;
-                    bestNodes.Add(cmd.BoardNode);
-                    if (i == count)
-                    {
-                        node.NextMoves.Reverse();
-                        break;
-                    }                        
-                }
-            }
-
-            for (i = 0; i < bestNodes.Count; i++)
-                if (bestNodes[i].Searched)
-                    result.AddRange(GetBestNodes(bestNodes[i], count));
+                for (int i = node.NextMoves.Count - 1; i >= 0; i--)
+                    if (node.NextMoves[i].BoardNode.Searched)
+                        result.AddRange(GetBestNodes(node.NextMoves[i].BoardNode, count));
+                    else
+                        result.Add(node.NextMoves[i].BoardNode);
+            result.Sort();
+            if (result.Count > 3)
+                if(node.Board.IsBlackTurn)
+                    result.RemoveRange(3, result.Count - 3);
                 else
-                    result.Add(bestNodes[i]);
-
-
-            if (node.Board.IsBlackTurn)
-            {
-                result.Sort((x, y) =>
-                {
-                    if (x.CChessScore == y.CChessScore)
-                        return 0;
-                    else if (x.CChessScore > y.CChessScore)
-                        return 1;
-                    return -1;
-                });
-            }
-            else
-            {
-                result.Sort((x, y) =>
-                {
-                    if (x.CChessScore == y.CChessScore)
-                        return 0;
-                    else if (x.CChessScore < y.CChessScore)
-                        return 1;
-                    return -1;
-                });
-            }
-
-            result.RemoveRange(3, result.Count - 3);
+                    result.RemoveRange(0, result.Count - 3);
             return result;
         }
 
