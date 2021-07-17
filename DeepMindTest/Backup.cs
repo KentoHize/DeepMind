@@ -15,6 +15,7 @@ namespace DeepMindTest
             Tina.SaveProject(ProjectChoice.DeepMind);
         }
 
+        [TestMethod]
         public void BackupProjectData()
         {
             Tina.SaveProjectData(ProjectChoice.DeepMind);            

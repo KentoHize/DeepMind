@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace CChessEngine
 {
@@ -11,6 +12,8 @@ namespace CChessEngine
         public CChessBoard Board { get; set; }
         public CChessStatus Status { get; set; }
         public SortedSet<CChessMoveData> NextMoves { get; set; }
+        
+        [JsonIgnore(Condition = JsonIgnoreCondition.Always)]
         public CChessBoardNode Parent { get; set; }
         public long Player1WinCount { get; set; }
         public long Player2WinCount { get; set; }
@@ -22,16 +25,18 @@ namespace CChessEngine
         public bool Searched { get; set; }
 
         public CChessBoardNode()
-            : this(null)
+            : this(null, null, null)
         { }
 
         public CChessBoardNode(CChessBoard board, CChessBoardNode parent = null, SortedSet<CChessMoveData> nextMoves = null)
         {
+            if (board == null)
+                return;
+            
             Board = new CChessBoard(board);
             Player1WinScore = DefaultScore;
             CChessScore = DefaultScore;
-            if (board == null)
-                return;
+            
             Parent = parent;            
             if (nextMoves == null)
                 nextMoves = CChessSystem.GetLegalMoves(board).ToMoveDataList();
@@ -39,7 +44,7 @@ namespace CChessEngine
         }
 
         public CChessBoardNode(CChessBoardNode node)
-        {
+        {           
             Board = new CChessBoard(node.Board);
             NextMoves = new SortedSet<CChessMoveData>(node.NextMoves);
             Player1WinCount = node.Player1WinCount;

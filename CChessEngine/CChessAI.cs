@@ -101,26 +101,45 @@ namespace CChessEngine
             UpdateBoardNode();
         }
 
-        public string PrintChilds(CChessBoardNode node, string startString = "")
+        public string PrintChilds(CChessBoardNode node, StringBuilder result = null, bool withScore = false, int depth = 0)
         {
+            if (result == null)
+                result = new StringBuilder();
+
+            
             if (node.Searched)
             {
-                StringBuilder result = new StringBuilder();
+                for (int i = 0; i < depth; i++)
+                    result.Append(" -> ");
                 foreach (CChessMoveData cmd in node.NextMoves)
                 {
-                    string buffer = string.Concat(startString, CChessSystem.PrintChineseMoveString(node.Board, cmd.Move), " ");
-                    result.Append(buffer);
-                    result.Append(PrintChilds(cmd.BoardNode, buffer));
+                    result.Append(CChessSystem.PrintChineseMoveString(node.Board, cmd.Move));
+                    result.Append(" ");
+                    if (withScore)
+                    {
+                        result.Append(cmd.BoardNode.CChessScore);
+                        result.Append(" ");
+                    }
+                    result.Append(PrintChilds(cmd.BoardNode, result, withScore, ++depth));
                 }
-                return result.ToString();
+                if (depth == 0)
+                    return result.ToString();
+                return null;
             }
-            return string.Concat(node.CChessScore, "\n");
+            else
+            {
+                if (!withScore)
+                    result.AppendLine(node.CChessScore.ToString());
+                else
+                    result.AppendLine();
+                return null;
+            }
         }
 
-        public void PrintNodeTree(CChessBoardNode rootNode)
+        public void PrintNodeTree(CChessBoardNode rootNode, bool withScore = false)
         {
             Console.WriteLine("可能局面:");
-            Console.WriteLine(PrintChilds(rootNode));
+            Console.WriteLine(PrintChilds(rootNode, null, withScore));
             Console.WriteLine("-----");
         }
 
@@ -160,6 +179,7 @@ namespace CChessEngine
             //}
             //Console.WriteLine("-----");
             UpdateNodeCChessScore(startNode);
+            PrintNodeTree(startNode, true);
             //foreach(CChessMoveData cmd in startNode.NextMoves)
             //{
             //    Console.WriteLine(string.Concat(CChessSystem.PrintChineseMoveString(startNode.Board, cmd.Move, true),
@@ -179,7 +199,7 @@ namespace CChessEngine
             }
 
             //PrintNodeTree(startNode);
-            PrintBestNodeTree(bestNodes);
+            //PrintBestNodeTree(bestNodes);
             if (startNode.Board.IsBlackTurn)
                 Console.WriteLine($"結果：{CChessSystem.PrintChineseMoveString(startNode.Board, startNode.NextMoves.Min.Move)}");
             else
