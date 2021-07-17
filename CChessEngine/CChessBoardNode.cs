@@ -14,7 +14,7 @@ namespace CChessEngine
         public CChessStatus Status { get; set; }
         public List<CChessMoveData> NextMoves { get; set; }
         
-        [JsonIgnore(Condition = JsonIgnoreCondition.Always)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.Always)]        
         public CChessBoardNode Parent { get; set; }
         public long Player1WinCount { get; set; }
         public long Player2WinCount { get; set; }
@@ -67,7 +67,12 @@ namespace CChessEngine
         {   
             if (x.CChessScore != y.CChessScore)
                 return x.CChessScore.CompareTo(y.CChessScore);
-            return x.Player1WinScore.CompareTo(y.Player1WinScore);
+            else if(x.Searched == y.Searched)
+                return x.Player1WinScore.CompareTo(y.Player1WinScore);
+            else if (x.Searched == false)
+                return 1;
+            else
+                return -1;
         }
 
         public int CompareTo([AllowNull] CChessBoardNode other)

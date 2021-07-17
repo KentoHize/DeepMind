@@ -15,7 +15,7 @@ namespace CChessEngine
         //再進一+30分
         //之後離主將越近+10分
         //走至底線-100分
-        //車離開原地 +20分
+        //車離開原地 +30分
         //車過河 +60分
         //炮過河 +30分
         //有士+40分
@@ -99,6 +99,11 @@ namespace CChessEngine
                             if (sign == -1 && j <= 4)
                                 result -= 60;
                             //過河+60分
+                            if (sign == 1 && ((i != 0 && j != 0) || (i != 8 && j != 0)))
+                                result += 30;
+                            if (sign == -1 && ((i != 0 && j != 9) || (i != 8 && j != 9)))
+                                result -= 30;
+                            //離開原地+30分
                             break;
                         case 'b':
                         case 'B':

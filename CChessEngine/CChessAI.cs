@@ -113,6 +113,8 @@ namespace CChessEngine
                 {
                     for (int i = 0; i < depth; i++)
                         result.Append(" -> ");
+                    if(depth == 0)
+                        result.Append("◎");
                     result.Append(CChessSystem.PrintChineseMoveString(node.Board, cmd.Move));
                     result.Append(" ");
                     if (withScore)
@@ -142,9 +144,9 @@ namespace CChessEngine
 
         public void PrintNodeTree(CChessBoardNode rootNode, bool withScore = false, bool toConsole = false)
         {
-            StringBuilder result = new StringBuilder();
-            result.AppendLine("可能局面：");
+            StringBuilder result = new StringBuilder();            
             result.Append(rootNode.Board.PrintBoard());
+            result.AppendLine("可能走法：");
             result.Append(PrintChilds(rootNode, null, withScore));
             result.Append("-------");
             if (toConsole)
@@ -155,7 +157,7 @@ namespace CChessEngine
 
         public void PrintBestNodeTree(List<CChessBoardNode> bestNodes)
         {
-            Console.WriteLine("最好棋");
+            Console.WriteLine("最好棋：");
             CChessBoardNode node;
             for (int i = 0; i < bestNodes.Count; i++)
             {
@@ -183,7 +185,7 @@ namespace CChessEngine
 
             ExpandNode(startNode);
             UpdateNodeCChessScore(startNode);
-            List<CChessBoardNode> bestNodes = GetBestNodes(startNode, width);
+            List<CChessBoardNode> bestNodes = GetBestNodes(startNode, width, startNode.Board.IsBlackTurn);
             while (nodeCount > 0)
             {
                 for (int i = 0; i < bestNodes.Count; i++)
@@ -193,15 +195,15 @@ namespace CChessEngine
                     UpdateNodeCChessScore(bestNodes[i]);
                     UpdateParentNodeCChessScore(bestNodes[i]);
                 }
-                bestNodes = GetBestNodes(startNode, width);
+                bestNodes = GetBestNodes(startNode, width, startNode.Board.IsBlackTurn);
             }
 
-            //PrintNodeTree(startNode, true);
+            PrintNodeTree(startNode, true);
             PrintBestNodeTree(bestNodes);
-            if (startNode.Board.IsBlackTurn)
-                Console.WriteLine($"結果：{CChessSystem.PrintChineseMoveString(startNode.Board, startNode.NextMoves[0].Move)}");
-            else
-                Console.WriteLine($"結果：{CChessSystem.PrintChineseMoveString(startNode.Board, startNode.NextMoves[startNode.NextMoves.Count - 1].Move)}");
+            //if (startNode.Board.IsBlackTurn)
+            //    Console.WriteLine($"結果：{CChessSystem.PrintChineseMoveString(startNode.Board, startNode.NextMoves[0].Move)}");
+            //else
+            //    Console.WriteLine($"結果：{CChessSystem.PrintChineseMoveString(startNode.Board, startNode.NextMoves[startNode.NextMoves.Count - 1].Move)}");
 
             List<CChessMoveData> result = new List<CChessMoveData>();
             CChessBoardNode node = startNode;
@@ -255,30 +257,30 @@ namespace CChessEngine
             }
         }
 
-        public List<CChessBoardNode> GetBestNodes(CChessBoardNode node, int count = 3)
+        public List<CChessBoardNode> GetBestNodes(CChessBoardNode node, int count = 3, bool getMin = false)
         {
             //挑3個最好的路
             //往下再算3個，從這9個節點中在挑3個
-            //再往下算3個，以此類推
+            //再往下算3個，以此類推            
             if (!node.Searched)
                 throw new ArgumentException(nameof(node));
 
             List<CChessBoardNode> result = new List<CChessBoardNode>();
             if (node.Board.IsBlackTurn)
-                for (int i = 0; i < count || i < node.NextMoves.Count; i++)
+                for (int i = 0; i < count && i < node.NextMoves.Count; i++)
                     if (node.NextMoves[i].BoardNode.Searched)
-                        result.AddRange(GetBestNodes(node.NextMoves[i].BoardNode, count));
+                        result.AddRange(GetBestNodes(node.NextMoves[i].BoardNode, count, getMin));
                     else
                         result.Add(node.NextMoves[i].BoardNode);
             else
-                for (int i = node.NextMoves.Count - 1; i >= 0; i--)
+                for (int i = node.NextMoves.Count - 1; i >= 0 && i >= node.NextMoves.Count - 3; i--)
                     if (node.NextMoves[i].BoardNode.Searched)
-                        result.AddRange(GetBestNodes(node.NextMoves[i].BoardNode, count));
+                        result.AddRange(GetBestNodes(node.NextMoves[i].BoardNode, count, getMin));
                     else
                         result.Add(node.NextMoves[i].BoardNode);
             result.Sort();
             if (result.Count > 3)
-                if(node.Board.IsBlackTurn)
+                if(getMin)
                     result.RemoveRange(3, result.Count - 3);
                 else
                     result.RemoveRange(0, result.Count - 3);
