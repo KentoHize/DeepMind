@@ -259,58 +259,72 @@ namespace CChessEngine
             }
         }
 
-        public List<CChessBoardNode> GetBestNodes(CChessBoardNode startNode, int count = 3, bool start = true)
+        public static CChessBoardNode GetBestNode(CChessBoardNode startNode, out List<CChessBoardNode> routeNodes)
         {
-            //挑3個最好的路
-            //再往下分3、再往下分3，
-            //尾端加入節點
-            //排序
+            CChessBoardNode node = startNode;
+            routeNodes = new List<CChessBoardNode>();
+            while (node.Searched)
+            {
+                routeNodes.Add(node);
+                if (node.Board.IsBlackTurn)
+                    node = node.NextMoves[0].BoardNode;
+                else
+                    node = node.NextMoves[node.NextMoves.Count - 1].BoardNode;
+            }
+            return node;
+        }
+
+        public List<CChessBoardNode> GetBestNodes(CChessBoardNode startNode, int count = 3)
+        {
+            //首先取得最佳節點
+            //接下來分析其路線中的分支節點找尋次佳節點
+            //以扇形的方式分布
             if (!startNode.Searched)
                 throw new ArgumentException(nameof(startNode));
 
+            List<CChessBoardNode> routeNodes;
             List<CChessBoardNode> result = new List<CChessBoardNode>();            
-            //初始化
-            result.Add(startNode);
-            result.Add(null);
-            int skipIndex = 0;
-            bool isBlackTurn = startNode.Board.IsBlackTurn;
-            //探索開始
-            while (true)
-            {
-                if (result[skipIndex] == null)
-                {
-                    result.RemoveAt(skipIndex);
-                    if (result.Count == 0)
-                        break;
-                    result.Sort();
-                    skipIndex = 0;
-                    if(result.Count > count)
-                    {
-                        //取得對自己最有利的點，驗算一下是否有這麼好
-                        if (startNode.Board.IsBlackTurn)
-                            result.RemoveRange(count, result.Count - count);
-                        else
-                            result.RemoveRange(0, result.Count - count);
-                    }   
+            //第一節點
+            CChessBoardNode node = GetBestNode(startNode, out routeNodes);            
+            if (count == 1)
+                return result;
 
-                    if (result.TrueForAll(m => !m.Searched))
-                        break;
-                    isBlackTurn = !isBlackTurn;
-                    result.Add(null);
-                }
-                else if (result[skipIndex].Searched)
-                {
-                    if (result[skipIndex].Board.IsBlackTurn)
-                        for (int i = 0; i < count && i < result[skipIndex].NextMoves.Count; i++)
-                            result.Add(result[skipIndex].NextMoves[i].BoardNode);
-                    else
-                        for (int i = result[skipIndex].NextMoves.Count - 1; i >= 0 && i >= result[skipIndex].NextMoves.Count - 3; i--)
-                            result.Add(result[skipIndex].NextMoves[i].BoardNode);
-                    result.RemoveAt(skipIndex);
-                }
+            //第二類節點 - 直
+            for(int i = routeNodes.Count - 1; i >= 0; i--)
+            {
+                if (routeNodes[i].NextMoves.Count < 2)
+                    continue;
+                if (routeNodes[i].Board.IsBlackTurn)
+                    result.Add(GetBestNode(routeNodes[i].NextMoves[1].BoardNode, out _));
                 else
-                    skipIndex++;
+                    result.Add(GetBestNode(routeNodes[i].NextMoves[routeNodes[i].NextMoves.Count - 2].BoardNode, out _));
+                if (result.Count == count)
+                {
+                    result.Sort();
+                    return result;
+                }
             }
+
+            //第三類節點 - 扇
+            for (int i = routeNodes.Count - 1; i >= 0; i--)
+            {
+                for(int j = 2; j < i; j++)
+                {
+                    if (routeNodes[i].NextMoves.Count <= j)
+                        continue;
+                    if (routeNodes[i].Board.IsBlackTurn)
+                        result.Add(GetBestNode(routeNodes[i].NextMoves[j].BoardNode, out _));
+                    else
+                        result.Add(GetBestNode(routeNodes[i].NextMoves[routeNodes[i].NextMoves.Count - j].BoardNode, out _));
+
+                    if (result.Count == count)
+                    {
+                        result.Sort();
+                        return result;
+                    }
+                }
+            }
+            result.Sort();
             return result;
         }
 
