@@ -51,9 +51,9 @@ namespace CChessEngine
                                 result -= 20;
                             //進一+20分
                             if (sign == 1 && j >= 5)
-                                result += 30 + (5 - j) * 10 + Math.Abs(i - 5) * 10; 
+                                result += 30 + (5 - j) * 10 + Math.Abs(i - 5) * -10 + 40; 
                             if (sign == -1 && j <= 4)
-                                result -= 30 + (j - 4) * 10 + Math.Abs(i - 5) * 10;
+                                result -= 30 + (j - 4) * 10 + Math.Abs(i - 5) * -10 + 40;
                             //過河+30分 ，每靠近主將一步+10分
                             if (sign == 1 && j == 9)
                                 result -= 100;
@@ -80,9 +80,9 @@ namespace CChessEngine
                             result += 250 * sign;
                             //持有250分
                             if (sign == 1)
-                                result += (9 - j) * 10 + Math.Abs(i - 5) * 10;
+                                result += j * 10 + Math.Abs(i - 5) * -10 + 40;
                             if (sign == -1)
-                                result -= j * 10 + Math.Abs(i - 5) * 10;
+                                result -= (9 - j) * 10 + Math.Abs(i - 5) * -10 + 40;
                             //離主將越近 + 10分
                             if (sign == 1 && j == 9)
                                 result -= 10;
