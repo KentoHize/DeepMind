@@ -29,8 +29,6 @@ namespace CChessEngine
         public CChessBoardNode StartBoardNode { get; set; }
         public CChessBoardNode CurrentBoardNode { get; set; }
         public SortedDictionary<CChessBoard, CChessBoardNode> BoardNodes { get; set; }
-        public SortedList<long, CChessBoardNode> BestNodes { get; set; }
-        //public int BestdNodesAmount { get; set; }
         public List<CChessMove> MoveRecords { get; set; }
         public List<CChessBoard> BoardRecords { get; set; }
         public bool NoDiskMode { get; set; }
@@ -48,7 +46,7 @@ namespace CChessEngine
             if (startBoard == null)
                 startBoard = CChessBoard.StartingBoard;
             BoardNodes = new SortedDictionary<CChessBoard, CChessBoardNode>();
-            BestNodes = new SortedList<long, CChessBoardNode>();
+            //BestNodes = new SortedList<long, CChessBoardNode>();
             MoveRecords = new List<CChessMove>();
             BoardRecords = new List<CChessBoard>();
             NoDiskMode = noDiskMode;
@@ -58,15 +56,18 @@ namespace CChessEngine
             CurrentBoardNode = StartBoardNode;
         }
 
-        public MoveStatus Go(CChessBoardNode bn, int depth, out CChessMoveData bestMoveData, out List<CChessMoveData> estimateMoves)
+        public MoveStatus Go(CChessBoardNode bn, int depth, int width, out CChessMoveData bestMoveData, out List<CChessMoveData> estimateMoves)
         {
             bestMoveData = null;
             estimateMoves = null;
 
-            if (bn.NextMoves.Count == 0)
-                return MoveStatus.Resign;
+            //if (bn.NextMoves.Count == 0)
+            //    return MoveStatus.Resign;
+            //To Do
 
-            List<CChessMoveData> result = BestFS(bn, depth);
+            List<CChessMoveData> result = BestFS(bn, depth, width);
+
+
             if (result.Count == 0)
                 return MoveStatus.NoBestMove;
 
@@ -75,19 +76,19 @@ namespace CChessEngine
             return MoveStatus.BestMove;
         }
 
-        public MoveStatus Go(CChessBoard board, int depth, out CChessMoveData bestMoveData, out List<CChessMoveData> estimateMoves)
+        public MoveStatus Go(CChessBoard board, int depth, int width, out CChessMoveData bestMoveData, out List<CChessMoveData> estimateMoves)
         {
             CChessBoardNode bn;
             if (BoardNodes.ContainsKey(board))
                 bn = BoardNodes[board];
             else
                 bn = LoadOrCreateBoardNode(board, null);
-            return Go(bn, depth, out bestMoveData, out estimateMoves);
+            return Go(bn, depth, width, out bestMoveData, out estimateMoves);
         }
 
-        public MoveStatus Move(int depth, out CChessMoveData bestMoveData, out List<CChessMoveData> estimateMoves)
+        public MoveStatus Move(int depth, int width, out CChessMoveData bestMoveData, out List<CChessMoveData> estimateMoves)
         {
-            MoveStatus result = Go(CurrentBoardNode, depth, out bestMoveData, out estimateMoves);
+            MoveStatus result = Go(CurrentBoardNode, depth, width, out bestMoveData, out estimateMoves);
             if (result != MoveStatus.Resign)
             {
                 CurrentBoardNode = (CChessBoardNode)bestMoveData.BoardNode.Clone();
@@ -110,6 +111,8 @@ namespace CChessEngine
                 result = new StringBuilder();
             if (node.Searched)
             {
+                if (!node.Board.IsBlackTurn)
+                    node.NextMoves.Reverse();
                 foreach (CChessMoveData cmd in node.NextMoves)
                 {
                     for (int i = 0; i < depth; i++)
@@ -127,9 +130,10 @@ namespace CChessEngine
                         result.AppendLine();
                     PrintChilds(cmd.BoardNode, result, withScore, depth + 1);
                 }
+                if (!node.Board.IsBlackTurn)
+                    node.NextMoves.Reverse();
                 if (depth == 0)
                     return result.ToString();
-
                 return null;
             }
             else
@@ -179,13 +183,22 @@ namespace CChessEngine
             Console.WriteLine("----");
         }
 
-        public List<CChessMoveData> BestFS(CChessBoardNode startNode, long nodeCount = 100, int width = 3)
+        public List<CChessMoveData> BestFS(CChessBoardNode startNode, long nodeCount = 100, int width = 10)
         {
             if (width < 1)
                 throw new ArgumentOutOfRangeException(nameof(width));
 
+
             ExpandNode(startNode);
+            //for (int i = 0; i < startNode.NextMoves.Count; i++)
+            //{
+            //    if (startNode.NextMoves[i].BoardNode != null)
+            //        for (int j = 0; j < startNode.NextMoves[i].BoardNode.NextMoves.Count; j++)
+            //            ExpandNode(startNode.NextMoves[i].BoardNode.NextMoves[j].BoardNode);
+            //}
             UpdateNodeCChessScore(startNode);
+
+            
             List<CChessBoardNode> bestNodes;
             while (nodeCount > 0)
             {
@@ -197,11 +210,11 @@ namespace CChessEngine
                     UpdateNodeCChessScore(bestNodes[i]);
                     UpdateParentNodeCChessScore(bestNodes[i]);
                 }
-                PrintBestNodeTree(bestNodes);
+                //PrintBestNodeTree(bestNodes);
             }
 
             //bestNodes = GetBestNodes(startNode, width);
-            PrintNodeTree(startNode, true);
+            //PrintNodeTree(startNode, true);
 
             //if (startNode.Board.IsBlackTurn)
             //    Console.WriteLine($"結果：{CChessSystem.PrintChineseMoveString(startNode.Board, startNode.NextMoves[0].Move)}");
@@ -332,6 +345,13 @@ namespace CChessEngine
             return result;
         }
 
+        public void ExpandNextMoves(CChessBoardNode node)
+        {   
+            node.NextMoves = CChessSystem.GetLegalMoves(node.Board).ToMoveDataList();
+            for (int i = 0; i < node.NextMoves.Count; i++)
+                node.NextMoves[i].BoardNode = LoadOrCreateBoardNode(CChessSystem.SimpleMove(node.Board, node.NextMoves[i].Move), node);
+        }
+
         //兩輪之後更新一次
         //一層是一回合
         public void ExpandNode(CChessBoardNode node, int depth = 2)
@@ -340,49 +360,46 @@ namespace CChessEngine
                 throw new ArgumentException(nameof(depth));
             depth--;
 
-            //Expand 1
+            ExpandNextMoves(node);            
             foreach (CChessMoveData cmd in node.NextMoves)
-            {
-                CChessBoard nextBoard = CChessSystem.SimpleMove(node.Board, cmd.Move);
-                CChessBoardNode nextBoardNode = LoadOrCreateBoardNode(nextBoard, node);
-                cmd.BoardNode = nextBoardNode;
-                if (nextBoardNode.Status == CChessStatus.None)
+            {   
+                if (cmd.BoardNode.Status == CChessStatus.None)
                 {
-                    CChessStatus nextBoardStatus = CChessSystem.CheckStatus(nextBoard, cmd.Move, nextBoardNode.NextMoves.ToMoveList());
+                    CChessStatus nextBoardStatus = CChessSystem.CheckStatus(cmd.BoardNode.Board, cmd.Move, cmd.BoardNode.NextMoves.ToMoveList());
                     switch (nextBoardStatus)
                     {
                         case CChessStatus.BlackWin:
-                            nextBoardNode.Player1WinScore =
-                            nextBoardNode.CChessScore = 0;
+                            cmd.BoardNode.Player1WinScore =
+                            cmd.BoardNode.CChessScore = 0;
                             continue;
                         case CChessStatus.RedWin:
-                            nextBoardNode.Player1WinScore =
-                            nextBoardNode.CChessScore =
+                            cmd.BoardNode.Player1WinScore =
+                            cmd.BoardNode.CChessScore =
                             CChessBoardNode.MaxScore;
                             continue;
                         case CChessStatus.BlackCheckmate:
-                            nextBoardNode.Player1WinScore =
-                            nextBoardNode.CChessScore = 0;
+                            cmd.BoardNode.Player1WinScore =
+                            cmd.BoardNode.CChessScore = 0;
                             continue;
                         case CChessStatus.RedCheckmate:
-                            nextBoardNode.Player1WinScore =
-                            nextBoardNode.CChessScore =
+                            cmd.BoardNode.Player1WinScore =
+                            cmd.BoardNode.CChessScore =
                             CChessBoardNode.MaxScore;
                             continue;
                         default:
                             if (MeasureScoreLevel == 1)
-                                nextBoardNode.CChessScore = CChessBoardScoreCalculator.MeasureScore(nextBoard);
+                                cmd.BoardNode.CChessScore = CChessBoardScoreCalculator.MeasureScore(cmd.BoardNode.Board);
                             else if (MeasureScoreLevel == 2)
-                                nextBoardNode.CChessScore = CChessBoardScoreCalculator.MeasureScorePrecision(nextBoard);
+                                cmd.BoardNode.CChessScore = CChessBoardScoreCalculator.MeasureScorePrecision(cmd.BoardNode.Board);
                             break;
                     }
                 }
 
-                if (BoardRecords.IndexOf(nextBoard) != -1)
+                if (BoardRecords.IndexOf(cmd.BoardNode.Board) != -1)
                     continue;
 
                 if (depth != 0)
-                    ExpandNode(nextBoardNode, depth);
+                    ExpandNode(cmd.BoardNode, depth);
             }
             node.NextMoves.Sort();
             node.Searched = true;

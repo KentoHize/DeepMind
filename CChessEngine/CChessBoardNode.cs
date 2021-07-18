@@ -39,9 +39,10 @@ namespace CChessEngine
             CChessScore = DefaultScore;
 
             Parent = parent;
-            if (nextMoves == null)
-                nextMoves = CChessSystem.GetLegalMoves(board).ToMoveDataList();
-            NextMoves = new List<CChessMoveData>(nextMoves);
+            //if (nextMoves == null)
+            //    nextMoves = CChessSystem.GetLegalMoves(board).ToMoveDataList();
+            if(NextMoves != null)
+                NextMoves = new List<CChessMoveData>(nextMoves);
         }
 
         public CChessBoardNode(CChessBoardNode node)
